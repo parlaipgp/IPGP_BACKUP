@@ -1,0 +1,11 @@
+
+
+# MPICH and SCOTCH include paths as shown by Dr.HN. These paths needs to be added before PETSc installation.
+# Dr.H.N have SCOTCH v6.1.3, which is working fine for him.
+
+export LD_LIBRARY_PATH=/home/rajesh/MPICH/mpich-4.2.0/mpich-install/lib:/home/rajesh/SCOTCH/scotch-v7.0.4/scotch-install/lib:$LD_LIBRARY_PATH
+export LD_INCLUDE_PATH=/home/rajesh/MPICH/mpich-4.2.0/mpich-install/include:/home/rajesh/SCOTCH/scotch-v7.0.4/scotch-instal/include:$LD_INCLUDE_PATH
+
+# After installing PETSc using latest version of cmake (> 3.18) add paths
+export PETSC_DIR=/home/rajesh/PETSC/petsc-3.20.4
+export PETSC_ARCH=arch-linux2-c-debug

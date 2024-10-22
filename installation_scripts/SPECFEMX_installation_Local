@@ -1,0 +1,210 @@
+
+			
+			* * * SPECFEMX Installation * * *
+			
+
+==============================  Files needed ===========================================
+
+cmake-3.23.1.tar.gz    --------> anything above 3.19.0 is fine
+openmpi-4.0.2.tar.bz2
+scotch-v7.0.4.tar.bz2
+SPECFEMX-freq.zip
+
+
+
+
+-------------------------------------Installation---------------------------------------
+
+Recommended installation directory  '/home' to avoid permission errors
+
+
+====================================== Pre-Installation================================== STEP - 1
+
+    sudo apt-get update
+
+      * * * Install necessary packages only. Most of them might already there.(flex and bison are must) * * *
+      
+        sudo apt-get update && apt-get install -y \
+        build-essential \
+        wget \
+        vim \
+        curl \
+        git \
+        gfortran \
+        flex \
+        bison \
+        python3 \
+        gedit \
+        g++ \
+        make 
+        
+        
+
+========================================CCMAKE=========================================== STEP - 2
+cd /usr/soft
+apt install libncurses5-dev
+tar -xzf cmake-3.23.1.tar.gz
+cd cmake-3.23.1
+./bootstrap
+make -j
+make install
+
+
+
+========================================OpenMPI========================================== STEP - 3
+
+cd /usr/soft
+tar -xvjf openmpi-4.0.2.tar.bz2
+cd openmpi-4.0.2 
+mkdir openmpi-install
+./configure --prefix=/usr/soft/openmpi-4.0.2/openmpi-install 2>&1 | tee config.out
+make all -j 2>&1 | tee make.out
+make install 2>&1 | tee install.out
+
+# Add paths to .bashrc
+
+export PATH=$PATH:/usr/soft/openmpi-4.0.2/openmpi-install/bin
+export OMPI_LIBRARY_PATH=/usr/soft/openmpi-4.0.2/openmpi-install/lib
+export OMPI_INCLUDE_PATH=/usr/soft/openmpi-4.0.2/openmpi-install/include  
+
+
+
+
+========================================SCOTCH========================================== STEP - 4
+cd /usr/soft
+tar -xvjf scotch-v7.0.4.tar.bz2
+cd scotch-v7.0.4
+
+mkdir scotch-install
+
+cmake -DCMAKE_INSTALL_PREFIX=/usr/soft/scotch-v7.0.4/scotch-install -DCMAKE_BUILD_TYPE=Release -DMPI_C_COMPILER=/usr/soft/openmpi-4.0.2/openmpi-install/bin/mpicc -DMPI_CXX_COMPILER=/usr/soft/openmpi-4.0.2/openmpi-install/bin/mpicxx -DMPI_C_INCLUDE_PATH=/usr/soft/openmpi-4.0.2/openmpi-install/include -DMPIEXEC_EXECUTABLE=/usr/soft/openmpi-4.0.2/openmpi-install/bin/mpiexec
+
+make -j
+
+export OMPI_ALLOW_RUN_AS_ROOT=1                     #* * * Needed for some of ctests * * *
+export OMPI_ALLOW_RUN_AS_ROOT_CONFIRM=1 
+
+ctest
+make install
+
+export PATH=$PATH:/usr/soft/scotch-v7.0.4/scotch-install/bin
+export SCOTCH_LIBRARY_PATH=/usr/soft/scotch-v7.0.4/scotch-install/lib
+export SCOTCH_INCLUDE_PATH=/usr/soft/scotch-v7.0.4/scotch-install/include
+
+
+
+
+========================================Petsc========================================== STEP - 5
+
+cd /usr/soft
+wget https://web.cels.anl.gov/projects/petsc/download/release-snapshots/petsc-3.20.4.tar.gz
+tar -xzf petsc-3.20.4.tar.gz
+cd petsc-3.20.4
+mkdir petsc-install
+
+export PETSC_DIR=/usr/soft/petsc-3.20.4/
+export PETSC_ARCH=arch-linux2-c-debug
+
+./configure --prefix=/usr/soft/petsc-3.20.4/petsc-install --download-fblaslapack --with-cc=mpicc --with-cxx=mpic++ --with-fc=mpif90 --with-mpiexec=mpiexec --download-hwloc --download-scalapack --download-mumps --download-superlu --download-superlu_dist --download-metis --download-parmetis --download-ptscotch --download-hypre
+
+>>> Follow the commands that comes afterwards. 
+
+
+export PETSC_DIR=/usr/soft/petsc-3.20.4/petsc-install
+export PATH=$PETSC_DIR/bin:$PATH
+export LD_LIBRARY_PATH=$PETSC_DIR/lib:$LD_LIBRARY_PATH
+
+
+
+
+
+========================================SPECFEMX======================================= STEP - 6
+
+cd /usr/soft
+unzip SPECFEMX-freq.zip
+cd /usr/soft/SPECFEMX-freq
+mkdir specfemx-install
+cd specfemx-install
+ccmake /usr/soft/SPECFEMX-freq
+
+	• opens interactable window, follow SPECFEMX manual to on/off flags
+	• go to advance options (press t)
+	• change “CMAKE_Fortran_COMPILER” from “/usr/bin/f95” to “mpif90” in advance options
+	• configure (press c)
+	• go to edit (press e)
+	• add paths of SCOTCH include and lib directories
+	• configure (press c)
+	• generate (press g)
+	
+
+			* * ccmake example window * * *
+	____________________________________________________________________________________                                                    
+ 	BUILD_DOCUMENTATION              OFF
+ 	BUILD_PARTMESH                   ON
+ 	BUILD_UTIL_EXODUSNEW2SEM         ON
+ 	BUILD_UTIL_EXODUSOLD2SEM         OFF
+ 	BUILD_UTIL_WRITE_SOS             OFF
+ 	CMAKE_BUILD_TYPE                 Debug
+ 	CMAKE_INSTALL_PREFIX             /usr/local
+ 	ENABLE_COMPLEX_SOLVER            OFF
+ 	ENABLE_CUDA                      OFF
+ 	ENABLE_MPI                       ON
+ 	ENABLE_PETSC                     ON
+ 	PETSC_ARCH                       /home/rajesh/PETSC/petsc-3.20.4/arch-linux2-c-debug
+ 	PETSC_DIR                        /home/rajesh/PETSC/petsc-3.20.4
+ 	SCOTCH_INCLUDE_PATH              /home/rajesh/SCOTCH/scotch-v7.0.4/scotch-install/include
+ 	SCOTCH_LIBRARY_PATH              /home/rajesh/SCOTCH/scotch-v7.0.4/scotch-install/lib
+	____________________________________________________________________________________                                                    
+
+make
+
+check /bin contains 'partmesh'  'pspecfemx'
+
+------------------------------* * *( o o o )* * *-------------------------------------------
+                                      
+                                      *
+                                    * * *
+
+                  * * * DONE. SPCEFEMX just installed * * *
+
+                                    * * *
+                                      *
+ 
+ 
+ 
+==================Set environmental variable in ~/.bashrc ============================== STEP - 7
+
+    # Open MPI
+    export PATH=$PATH:/usr/soft/openmpi-4.0.2/openmpi-install/bin
+    export OMPI_LIBRARY_PATH=/usr/soft/openmpi-4.0.2/openmpi-install/lib
+    export OMPI_INCLUDE_PATH=/usr/soft/openmpi-4.0.2/openmpi-install/include  
+
+    
+    # Scotch
+    export PATH=$PATH:/usr/soft/scotch-v7.0.4/scotch-install/bin
+    export SCOTCH_LIBRARY_PATH=/usr/soft/scotch-v7.0.4/scotch-install/lib
+    export SCOTCH_INCLUDE_PATH=/usr/soft/scotch-v7.0.4/scotch-install/include
+
+    
+    # PETSc.
+    export PETSC_ARCH=arch-linux2-c-debug
+    export PATH=$PATH:/usr/soft/scotch-v7.0.4/scotch-install/bin
+    export SCOTCH_LIBRARY_PATH=/usr/soft/scotch-v7.0.4/scotch-install/lib
+    export SCOTCH_INCLUDE_PATH=/usr/soft/scotch-v7.0.4/scotch-install/include
+
+
+========================================Running SPECFEMX=======================================
+
+# Create symbolic link of /bin in working directory
+ln -s /usr/soft/SPECFEMX-freq/specfemx-install/bin .
+
+# Run the preprocessing step. Mesh partitioning
+./bin/partmesh input/tohoku_pre-seis.psem
+
+# Submit job with mpirun
+mpirun -n 24 ./bin/pspecfemx input/tohoku_pre-seis.psem
+
+
+			* * * END * * *
+			
+			

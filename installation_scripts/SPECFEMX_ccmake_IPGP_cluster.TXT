@@ -1,0 +1,103 @@
+
+----------------------------------- options set during installation in IPGP cluster---------------------
+
+		                                           Page 1 of 2
+	 BUILD_DOCUMENTATION              OFF                                                                                                                                 
+	 BUILD_PARTMESH                   ON                                                                                                                                  
+	 BUILD_UTIL_EXODUSNEW2SEM         OFF                                                                                                                                 
+	 BUILD_UTIL_EXODUSOLD2SEM         OFF                                                                                                                                 
+	 BUILD_UTIL_WRITE_SOS             OFF                                                                                                                                 
+	 CMAKE_ADDR2LINE                  /usr/bin/addr2line                                                                                                                  
+	 CMAKE_AR                         /usr/bin/ar                                                                                                                         
+	 CMAKE_BUILD_TYPE                 Debug                                                                                                                               
+	 CMAKE_COLOR_MAKEFILE             ON                                                                                                                                  
+	 CMAKE_CXX_COMPILER               /usr/bin/c++                                                                                                                        
+	 CMAKE_CXX_COMPILER_AR            /usr/bin/gcc-ar                                                                                                                     
+	 CMAKE_CXX_COMPILER_RANLIB        /usr/bin/gcc-ranlib                                                                                                                 
+	 CMAKE_CXX_FLAGS                                                                                                                                                      
+	 CMAKE_CXX_FLAGS_DEBUG            -g                                                                                                                                  
+	 CMAKE_CXX_FLAGS_MINSIZEREL	  -Os -DNDEBUG                                                                                                                        
+	 CMAKE_CXX_FLAGS_RELEASE          -O3 -DNDEBUG                                                                                                                        
+	 CMAKE_CXX_FLAGS_RELWITHDEBINFO   -O2 -g -DNDEBUG                                                                                                                     
+	 CMAKE_C_COMPILER                 /usr/bin/cc                                                                                                                         
+	 CMAKE_C_COMPILER_AR              /usr/bin/gcc-ar                                                                                                                     
+	 CMAKE_C_COMPILER_RANLIB          /usr/bin/gcc-ranlib                                                                                                                 
+	 CMAKE_C_FLAGS                    -I/softs/openmpi/intel-19U5/4.1.1-ucx-1.10.1/include:-I/softs/ucx/1.10.1/include                                                    
+	 CMAKE_C_FLAGS_DEBUG              -g                                                                                                                                  
+	 CMAKE_C_FLAGS_MINSIZEREL         -Os -DNDEBUG                                                                                                                        
+	 CMAKE_C_FLAGS_RELEASE            -O3 -DNDEBUG                                                                                                                        
+	 CMAKE_C_FLAGS_RELWITHDEBINFO     -O2 -g -DNDEBUG                                                                                                                     
+	 CMAKE_DLLTOOL                    CMAKE_DLLTOOL-NOTFOUND                                                                                                              
+	 CMAKE_EXE_LINKER_FLAGS           -L/softs/openmpi/intel-19U5/4.1.1-ucx-1.10.1/lib:-L/softs/ucx/1.10.1/lib                                                            
+	 CMAKE_EXE_LINKER_FLAGS_DEBUG                                                                                                                                         
+	 CMAKE_EXE_LINKER_FLAGS_MINSIZE                                                                                                                                       
+	 CMAKE_EXE_LINKER_FLAGS_RELEASE                                                                                                                                       
+	 CMAKE_EXE_LINKER_FLAGS_RELWITH                                                                                                                                       
+	 CMAKE_EXPORT_COMPILE_COMMANDS    OFF                                                                                                                                 
+	 CMAKE_Fortran_COMPILER           /softs/openmpi/intel-19U5/4.1.1-ucx-1.10.1/bin/mpif90                                                                               
+	 CMAKE_Fortran_FLAGS                                                                                                                                                  
+	 CMAKE_Fortran_FLAGS_DEBUG        -g                                                                                                                                  
+	 CMAKE_Fortran_FLAGS_MINSIZEREL   -Os                                                                                                                                 
+	 CMAKE_Fortran_FLAGS_RELEASE	  -O3                                                                                                                                 
+	 CMAKE_Fortran_FLAGS_RELWITHDEB   -O2 -g                                                                                                                              
+	 CMAKE_INSTALL_PREFIX             /usr/local                                                                                                                          
+	 CMAKE_LINKER                     /usr/bin/ld                                                                                                                         
+	 CMAKE_MAKE_PROGRAM               /usr/bin/gmake                                                                                                                      
+	 CMAKE_MODULE_LINKER_FLAGS        -L/softs/openmpi/intel-19U5/4.1.1-ucx-1.10.1/lib:-L/softs/ucx/1.10.1/lib                                                            
+	 CMAKE_MODULE_LINKER_FLAGS_DEBU                                                                                                                                       
+	 CMAKE_MODULE_LINKER_FLAGS_MINS                                                                                                                                       
+	 CMAKE_MODULE_LINKER_FLAGS_RELE                                                                                                                                       
+	 CMAKE_MODULE_LINKER_FLAGS_RELW                                                                                                                                       
+	 CMAKE_NM                         /usr/bin/nm                                                                                                                         
+	 CMAKE_OBJCOPY                    /usr/bin/objcopy                                                                                                                    
+	 CMAKE_OBJDUMP                    /usr/bin/objdump                                                                                                                    
+	 CMAKE_RANLIB                     /usr/bin/ranlib                                                                                                                     
+	 CMAKE_READELF                    /usr/bin/readelf                                                                                                                    
+
+		                                            Page 2 of 2
+	 CMAKE_SHARED_LINKER_FLAGS        -L/softs/openmpi/intel-19U5/4.1.1-ucx-1.10.1/lib:-L/softs/ucx/1.10.1/lib                                                            
+	 CMAKE_SHARED_LINKER_FLAGS_DEBU                                                                                                                                       
+	 CMAKE_SHARED_LINKER_FLAGS_MINS                                                                                                                                       
+	 CMAKE_SHARED_LINKER_FLAGS_RELE                                                                                                                                       
+	 CMAKE_SHARED_LINKER_FLAGS_RELW                                                                                                                                       
+	 CMAKE_SKIP_INSTALL_RPATH         OFF                                                                                                                                 
+	 CMAKE_SKIP_RPATH                 OFF                                                                                                                                 
+	 CMAKE_STATIC_LINKER_FLAGS                                                                                                                                            
+	 CMAKE_STATIC_LINKER_FLAGS_DEBU                                                                                                                                       
+	 CMAKE_STATIC_LINKER_FLAGS_MINS                                                                                                                                       
+	 CMAKE_STATIC_LINKER_FLAGS_RELE                                                                                                                                       
+	 CMAKE_STATIC_LINKER_FLAGS_RELW                                                                                                                                       
+	 CMAKE_STRIP                      /usr/bin/strip                                                                                                                      
+	 CMAKE_TAPI                       CMAKE_TAPI-NOTFOUND                                                                                                                 
+	 CMAKE_VERBOSE_MAKEFILE    	  OFF                                                                                                                                 
+	 ENABLE_COMPLEX_SOLVER            OFF                                                                                                                                 
+	 ENABLE_CUDA                      OFF                                                                                                                                 
+	 ENABLE_MPI                       ON                                                                                                                                  
+	 ENABLE_PETSC                     ON                                                                                                                                  
+	 MPIEXEC_EXECUTABLE               /softs/openmpi/intel-19U5/4.1.1-ucx-1.10.1/bin/mpiexec                                                                              
+	 MPIEXEC_MAX_NUMPROCS             32                                                                                                                                  
+	 MPIEXEC_NUMPROC_FLAG             -n                                                                                                                                  
+	 MPIEXEC_POSTFLAGS                                                                                                                                                    
+	 MPIEXEC_PREFLAGS                                                                                                                                                     
+	 MPI_Fortran_ADDITIONAL_INCLUDE                                                                                                                                       
+	 MPI_Fortran_COMPILER             /softs/openmpi/intel-19U5/4.1.1-ucx-1.10.1/bin/mpif90                                                                               
+	 MPI_Fortran_COMPILER_INCLUDE_D                                                                                                                                       
+	 MPI_Fortran_COMPILE_DEFINITION                                                                                                                                       
+	 MPI_Fortran_COMPILE_OPTIONS                                                                                                                                          
+	 MPI_Fortran_LINK_FLAGS                                                                                                                                               
+	 PETSC_ARCH                       /gpfs/scratch/parla/petsc-3.20.4/arch-linux-intel-opt                                                                               
+	 PETSC_DIR                        /gpfs/scratch/parla/petsc-3.20.4                                                                                                    
+	 PKG_CONFIG_ARGN                                                                                                                                                      
+	 PKG_CONFIG_EXECUTABLE            /usr/bin/pkg-config                                                                                                                 
+	 SCOTCH_INCLUDE_PATH              /gpfs/scratch/parla/scotch-v6.1.3/scotch-install/include                                                                            
+	 SCOTCH_LIBRARY_PATH              /gpfs/scratch/parla/scotch-v6.1.3/scotch-install/lib                                                                                
+	 XIAR                             /softs/intel/2019U5/compilers_and_libraries_2019.5.281/linux/bin/intel64/xiar 
+
+
+
+
+
+
+
+
+			* * * END * * *

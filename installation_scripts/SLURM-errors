@@ -1,0 +1,1126 @@
+
+** SLURM should manage the job and allocate resources on the host, while mpirun inside the container handles task execution across nodes**
+
+
+____________________________________________________________________________________________
+[parla@stella01 tohoku2011_pre-seis]$ scontrol show config | grep -i mpi
+MpiDefault              = none
+MpiParams               = (null)
+[parla@stella01 tohoku2011_pre-seis]$ srun --mpi=list
+MPI plugin types are...
+	cray_shasta
+	none
+	pmi2
+[parla@stella01 tohoku2011_pre-seis]$ mpiexec --version
+mpiexec (OpenRTE) 4.0.2
+
+Report bugs to http://www.open-mpi.org/community/help/
+[parla@stella01 tohoku2011_pre-seis]$ singularity exec ../SPECFEMX.sif mpiexec --version
+FATAL:   "mpiexec": executable file not found in $PATH
+[parla@stella01 tohoku2011_pre-seis]$ singularity exec ../SPECFEMX.sif /usr/soft/openmpi-5.0.2/openmpi-install/bin/mpiexec --version
+mpiexec (Open MPI) 5.0.2
+
+Report bugs to https://www.open-mpi.org/community/help/
+[parla@stella01 tohoku2011_pre-seis]$ 
+____________________________________________________________________________________________
+
+
+
+========================================1============================================
+
+#!/bin/bash
+#SBATCH --job-name=tohoku              # Job name
+#SBATCH --output=OUT_%j.out            # Output file
+#SBATCH --error=ERR_%j.err             # Error file
+#SBATCH --nodes=2                      # Number of nodes
+#SBATCH --ntasks=48                    # Total number of MPI tasks
+#SBATCH --ntasks-per-node=24           # Number of MPI tasks per node
+#SBATCH --cpus-per-task=1              # Number of CPU cores per task
+#SBATCH --time=02:00:00                # Time limit (adjust as needed)
+#SBATCH --partition=ncpu               # Partition (adjust as needed)
+
+# Clean up and create directories
+rm -rf partition output tmp
+mkdir -p output partition tmp
+
+# Run the preprocessing step. Mesh partitioning
+singularity exec ../SPECFEMX.simg ./bin/partmesh input/tohoku_pre-seis.psem
+
+# Run the MPI program using Singularity and srun
+srun singularity exec --bind /usr/bin/srun:/usr/bin/srun \
+                  --bind /usr/lib64/slurm:/usr/lib64/slurm \
+                  --bind /etc/slurm:/etc/slurm \
+                  --env PATH=$PATH:/usr/soft/openmpi-5.0.2/openmpi-install/bin \
+                  --env LD_LIBRARY_PATH=/usr/lib64/slurm:$LD_LIBRARY_PATH \
+                  ../SPECFEMX.simg ./bin/pspecfemx input/tohoku_pre-seis.psem
+
+
+--------------------------------------------------------------------------nothing in .err file but .out file:
+ ERROR: number of processors and images must be equal!           1          48
+ * Running in parallel... 
+   --> number of processors:            1
+ ERROR: number of processors and images must be equal!           1          48
+ * Running in parallel... 
+   --> number of processors:            1
+ ERROR: number of processors and images must be equal!           1          48
+--------------------------------------------------------------------------
+
+
+
+
+
+
+========================================2============================================
+mpirun -n 48 singularity exec ../SPECFEMX.sif ./bin/pspecfemx input/tohoku_pre-seis.psem
+
+--------------------------------------------------------------------------.err file
+/var/spool/slurmd/job1864181/slurm_script: line 20: mpirun: command not found
+--------------------------------------------------------------------------
+
+
+
+
+
+
+
+========================================3============================================
+singularity exec ../SPECFEMX.sif /usr/soft/openmpi-5.0.2/openmpi-install/bin/mpirun -n 48 ./bin/pspecfemx input/tohoku_pre-seis.psem
+
+
+--------------------------------------------------------------------------.err file
+The SLURM process starter for OpenMPI was unable to locate a
+usable "srun" command in its path. Please check your path
+and try again.
+--------------------------------------------------------------------------
+
+
+
+
+
+
+========================================4============================================
+singularity exec ../SPECFEMX.sif srun -n 48 ./bin/pspecfemx input/tohoku_pre-seis.psem
+
+--------------------------------------------------------------------------.err file
+FATAL:   "srun": executable file not found in $PATH
+--------------------------------------------------------------------------
+
+
+
+
+
+
+========================================5============================================
+srun singularity exec ../SPECFEMX.sif /usr/soft/openmpi-5.0.2/openmpi-install/bin/mpirun -n 48 ./bin/pspecfemx input/tohoku_pre-seis.psem
+
+--------------------------------------------------------------------------.err file
+The SLURM process starter for OpenMPI was unable to locate a
+usable "srun" command in its path. Please check your path
+and try again.
+--------------------------------------------------------------------------
+
+
+
+
+
+
+========================================6============================================
+srun singularity exec ../SPECFEMX.sif ./bin/pspecfemx input/tohoku_pre-seis.psem
+--------------------------------------------------------------------------nothing in .err file but .out file:
+ERROR: number of processors and images must be equal!           1          48
+ * Running in parallel... 
+   --> number of processors:            1
+ ERROR: number of processors and images must be equal!           1          48
+--------------------------------------------------------------------------
+
+
+
+
+
+
+========================================7============================================
+srun --mpi=pmix singularity exec ../SPECFEMX.sif ./bin/pspecfemx input/tohoku_pre-seis.psem
+
+--------------------------------------------------------------------------.err file
+srun: error: Couldn't find the specified plugin name for mpi/pmix looking at all files
+srun: error: cannot find mpi plugin for mpi/pmix
+srun: error: MPI: Cannot create context for mpi/pmix
+srun: error: MPI: Unable to load any plugin
+srun: error: Invalid MPI type 'pmix', --mpi=list for acceptable types
+--------------------------------------------------------------------------
+
+
+
+
+
+
+========================================8============================================
+srun --mpi=pmi2 singularity exec ../SPECFEMX.sif ./bin/pspecfemx input/tohoku_pre-seis.psem
+
+--------------------------------------------------------------------------.err file
+No PMIx server was reachable, but a PMI1/2 was detected.
+If srun is being used to launch application,  48 singletons will be started.
+
+--------------------------------------------------------------------------.out file
+* Running in parallel... 
+   --> number of processors:            1
+ ERROR: number of processors and images must be equal!           1          48
+ * Running in parallel... 
+   --> number of processors:            1
+ ERROR: number of processors and images must be equal!           1          48
+--------------------------------------------------------------------------
+
+
+
+
+
+
+
+========================================9============================================by Bastien
+srun -n 48 singularity exec --bind /usr/bin/srun:/usr/bin/srun \
+                  --bind /usr/lib64/slurm:/usr/lib64/slurm \
+                  --bind /etc/slurm:/etc/slurm \
+                  --env PATH=$PATH:/usr/soft/openmpi-5.0.2/openmpi-install/bin \
+                  --env LD_LIBRARY_PATH=/usr/lib64/slurm:$LD_LIBRARY_PATH \
+                  ../SPECFEMX.simg ./bin/pspecfemx input/tohoku_pre-seis.psem
+--------------------------------------------------------------------------nothing in .err file but .out file:
+ERROR: number of processors and images must be equal!           1          48
+ * Running in parallel... 
+   --> number of processors:            1
+ ERROR: number of processors and images must be equal!           1          48
+--------------------------------------------------------------------------
+
+
+
+
+
+
+
+
+========================================10============================================by Bastien
+srun -N2 -n48 --mpi=pmi2 --cpu-bind=v,rank singularity exec --bind /usr/bin/srun:/usr/bin/srun \
+                  --bind /usr/lib64/slurm:/usr/lib64/slurm \
+                  --bind /etc/slurm:/etc/slurm \
+                  --env PATH=$PATH:/usr/soft/openmpi-5.0.2/openmpi-install/bin \
+                  --env LD_LIBRARY_PATH=/usr/lib64/slurm:$LD_LIBRARY_PATH \
+                  ../SPECFEMX.simg ./bin/pspecfemx input/tohoku_pre-seis.psem
+                  
+---------------------------------------------------------------------------.err file
+No PMIx server was reachable, but a PMI1/2 was detected.
+If srun is being used to launch application,  48 singletons will be started.
+
+--------------------------------------------------------------------------.out file
+* Running in parallel... 
+   --> number of processors:            1
+ ERROR: number of processors and images must be equal!           1          48
+ * Running in parallel... 
+   --> number of processors:            1
+ ERROR: number of processors and images must be equal!           1          48
+ --------------------------------------------------------------------------
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+###################################################################################### 
+    ** With new .sif (%environment added & OPMI is 4.0.2 same as in cluster) **
+###################################################################################### 
+
+
+
+========================================11============================================
+ srun -n 24 singularity exec ../SPECFEMX_withenv_OMPI4.sif ./bin/pspecfemx input/tohoku_pre-seis.psem
+
+
+---------------------------------------------------------------------------.err file
+ [ncpu040:2748800] OPAL ERROR: Not initialized in file pmix3x_client.c at line 112
+The application appears to have been direct launched using "srun",
+but OMPI was not built with SLURM's PMI support and therefore cannot
+execute. There are several options for building PMI support under
+SLURM, depending upon the SLURM version you are using:
+
+  version 16.05 or later: you can use SLURM's PMIx support. This
+  requires that you configure and build SLURM --with-pmix.
+
+  Versions earlier than 16.05: you must use either SLURM's PMI-1 or
+  PMI-2 support. SLURM builds PMI-1 by default, or you can manually
+  install PMI-2. You must then build Open MPI using --with-pmi pointing
+  to the SLURM PMI library location.
+
+Please configure as appropriate and try again.
+--------------------------------------------------------------------------
+*** An error occurred in MPI_Init
+*** on a NULL communicator
+*** MPI_ERRORS_ARE_FATAL (processes in this communicator will now abort,
+***    and potentially your MPI job)
+[ncpu040:2748800] Local abort before MPI_INIT completed completed successfully, but am not able to aggregate error messages, and not able to guarantee that all other processes were killed!
+
+
+
+
+
+
+========================================12============================================ * * * * * WORKING * * * * *
+mpirun --np 60 singularity exec ../SPECFEMX_withenv_OMPI4.sif ./bin/pspecfemx input/inclined_strikeslip.psem
+
+---------------------------------inclined_strikeslip--------------------------------working fine with 1 node 60/24/48 cores. 
+
+---------------------------------------------------------------------------with 2 nodes 60 cores. error
+[ncpu005][[63443,1],29][btl_tcp_endpoint.c:625:mca_btl_tcp_endpoint_recv_connect_ack] received unexpected process identifier [[63443,1],7]
+--------------------------------------------------------------------------
+
+
+
+
+
+
+========================================13============================================
+mpirun --np 60 singularity exec ../SPECFEMX_withenv_OMPI4.sif ./bin/pspecfemx input/inclined_strikeslip.psem
+
+-----------------tohoku_20km_50km---------------------------------------with 1 node 64 cores. error
+--------------------------------------------------------------------------
+Primary job  terminated normally, but 1 process returned
+a non-zero exit code. Per user-direction, the job has been aborted.
+--------------------------------------------------------------------------
+--------------------------------------------------------------------------
+mpirun noticed that process rank 43 with PID 1886229 on node ncpu036 exited on signal 9 (Killed).
+--------------------------------------------------------------------------
+slurmstepd: error: Detected 1 oom-kill event(s) in StepId=1873791.batch. Some of your processes may have been killed by the cgroup out-of-memory handler.
+
+
+
+
+
+
+
+========================================14============================================
+mpirun --np 64 singularity exec ../SPECFEMX_withenv_OMPI4.sif ./bin/pspecfemx input/tohoku_pre-seis.psem
+
+
+-----------------tohoku_20km_50km---------------------------------------with 1 node 64 cores. Requested 130G memory. err
+/var/spool/slurmd/job1874619/slurm_script: line 20: mpirun: command not found
+
+-----------------tohoku_20km_50km---------------------------------------with 2 node 64 cores. Requested 130G memory. err
+/var/spool/slurmd/job1874622/slurm_script: line 20: mpirun: command not found
+
+
+
+
+
+
+========================================15============================================ * * * * * WORKED BEFORE * * * * *
+mpirun --np 64 singularity exec ../SPECFEMX_withenv_OMPI4.sif ./bin/pspecfemx input/inclined_strikeslip.psem
+-----------------tohoku_20km_50km---------------------------------------with 1 node 64 cores. Not Requested any memory. err
+/var/spool/slurmd/job1874877/slurm_script: line 20: mpirun: command not found
+
+
+
+
+/var/spool/slurmd/job1874899/slurm_script: line 21: /usr/lib64/openmpi/bin/mpirun: No such file or directory
+
+
+
+
+
+
+
+###################################################################################### 
+			             MPI tests
+###################################################################################### 
+				sbatch submit_job.sh
+
+________________________________________ MPI test_____outside singularity_________N2 n8___________ 1 
+#!/bin/bash
+#SBATCH --job-name=test_mpi
+#SBATCH --output=test_output_%j.out
+#SBATCH --error=test_error_%j.err
+#SBATCH --nodes=2
+#SBATCH --ntasks=8
+#SBATCH --ntasks-per-node=4
+#SBATCH --cpus-per-task=1
+#SBATCH --time=00:05:00
+#SBATCH --partition=ncpu
+
+# srun hostname
+module purge
+
+module list
+module load openmpi/gcc-10.3.0/4.1.1
+
+mpirun ./mpi_test
+
+-------------------------------------------------------------------------- * * * WORKING * * *
+
+
+________________________________________ MPI test_____Inside singularity_________N2 n8___________ 2 
+
+#!/bin/bash
+#SBATCH --job-name=test_mpi
+#SBATCH --output=test_output_%j.out
+#SBATCH --error=test_error_%j.err
+#SBATCH --nodes=2
+#SBATCH --ntasks=8
+#SBATCH --ntasks-per-node=4
+#SBATCH --cpus-per-task=1
+#SBATCH --time=00:05:00
+#SBATCH --partition=ncpu
+
+# srun hostname
+module purge
+
+module list
+module load openmpi/gcc-10.3.0/4.1.1
+
+mpirun singularity exec ../SPECFEMX_withenv_OMPI4.sif ./mpi_test
+-------------------------------------------------------------------------- * * * WORKING * * *
+
+
+
+________________________________________ MPI test_____Outside singularity_________N4 n40___________ 3 
+#!/bin/bash
+#SBATCH --job-name=test_mpi
+#SBATCH --output=test_output_%j.out
+#SBATCH --error=test_error_%j.err
+#SBATCH --nodes=4
+#SBATCH --ntasks=40
+#SBATCH --ntasks-per-node=10
+#SBATCH --cpus-per-task=1
+#SBATCH --time=00:05:00
+#SBATCH --partition=ncpu
+
+# srun hostname
+module purge
+
+module list
+module load openmpi/gcc-10.3.0/4.1.1
+
+mpirun ./mpi_test
+-------------------------------------------------------------------------- * * * WORKING * * *
+
+
+
+________________________________________ MPI test_____Inside singularity_________N4 n40___________ 4 
+#!/bin/bash
+#SBATCH --job-name=test_mpi
+#SBATCH --output=test_output_%j.out
+#SBATCH --error=test_error_%j.err
+#SBATCH --nodes=4
+#SBATCH --ntasks=40
+#SBATCH --ntasks-per-node=10
+#SBATCH --cpus-per-task=1
+#SBATCH --time=00:05:00
+#SBATCH --partition=ncpu
+
+# srun hostname
+module purge
+
+module list
+module load openmpi/gcc-10.3.0/4.1.1
+
+mpirun singularity exec ../SPECFEMX_withenv_OMPI4.sif ./mpi_test
+-------------------------------------------------------------------------- * * * WORKING * * *
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+_____________________ MPI test_____Outside singularity________N2 n10___________with srun___ 6 by Bastien 
+
+#!/bin/bash
+#SBATCH --job-name=test_mpi
+#SBATCH --output=test_output_%j.out
+#SBATCH --error=test_error_%j.err
+#SBATCH --nodes=2
+#SBATCH --ntasks=10
+#SBATCH --ntasks-per-node=5
+#SBATCH --cpus-per-task=1
+#SBATCH --time=00:05:00
+#SBATCH --partition=ncpu
+
+# srun hostname
+module purge
+
+module list
+module load openmpi/gcc-10.3.0/4.1.1
+
+srun -N2 -n10 ./mpi_test
+
+-------------------------------------------------------------------------- * * * ERROR * * *
+[ncpu003:2799177] OPAL ERROR: Unreachable in file pmix3x_client.c at line 112
+[ncpu003:2799180] OPAL ERROR: Unreachable in file pmix3x_client.c at line 112
+[ncpu003:2799176] OPAL ERROR: Unreachable in file pmix3x_client.c at line 112
+[ncpu003:2799179] OPAL ERROR: Unreachable in file pmix3x_client.c at line 112
+[ncpu003:2799178] OPAL ERROR: Unreachable in file pmix3x_client.c at line 112
+--------------------------------------------------------------------------
+The application appears to have been direct launched using "srun",
+but OMPI was not built with SLURM's PMI support and therefore cannot
+execute. There are several options for building PMI support under
+SLURM, depending upon the SLURM version you are using:
+
+  version 16.05 or later: you can use SLURM's PMIx support. This
+  requires that you configure and build SLURM --with-pmix.
+
+  Versions earlier than 16.05: you must use either SLURM's PMI-1 or
+  PMI-2 support. SLURM builds PMI-1 by default, or you can manually
+  install PMI-2. You must then build Open MPI using --with-pmi pointing
+  to the SLURM PMI library location.
+
+Please configure as appropriate and try again.
+--------------------------------------------------------------------------
+
+
+
+
+
+
+
+
+
+_____________________ MPI test_____Outside singularity________N2 n10___________with srun___ 7 by Bastien 
+#!/bin/bash
+#SBATCH --job-name=test_mpi
+#SBATCH --output=test_output_%j.out
+#SBATCH --error=test_error_%j.err
+#SBATCH --nodes=2
+#SBATCH --ntasks=10
+#SBATCH --ntasks-per-node=5
+#SBATCH --cpus-per-task=1
+#SBATCH --time=00:05:00
+#SBATCH --partition=ncpu
+
+# srun hostname
+module purge
+
+module list
+module load openmpi/gcc-10.3.0/4.1.1
+
+
+srun -N2 -n10 --mpi=pmi2 --cpu-bind=v,rank ./mpi_test
+
+-------------------------------------------------------------------------- * * * ERROR * * *
+[ncpu003:2799635] OPAL ERROR: Unreachable in file pmix3x_client.c at line 112
+[ncpu003:2799638] OPAL ERROR: Unreachable in file pmix3x_client.c at line 112
+[ncpu003:2799637] OPAL ERROR: Unreachable in file pmix3x_client.c at line 112
+[ncpu003:2799636] OPAL ERROR: Unreachable in file pmix3x_client.c at line 112
+[ncpu003:2799639] OPAL ERROR: Unreachable in file pmix3x_client.c at line 112
+--------------------------------------------------------------------------
+The application appears to have been direct launched using "srun",
+but OMPI was not built with SLURM's PMI support and therefore cannot
+execute. There are several options for building PMI support under
+SLURM, depending upon the SLURM version you are using:
+
+  version 16.05 or later: you can use SLURM's PMIx support. This
+  requires that you configure and build SLURM --with-pmix.
+
+  Versions earlier than 16.05: you must use either SLURM's PMI-1 or
+  PMI-2 support. SLURM builds PMI-1 by default, or you can manually
+  install PMI-2. You must then build Open MPI using --with-pmi pointing
+  to the SLURM PMI library location.
+
+Please configure as appropriate and try again.
+--------------------------------------------------------------------------
+
+
+
+
+
+
+
+
+
+
+_____________________ MPI test_____Inside singularity________N4 n40___________with srun___ 8 by Bastien 
+#!/bin/bash
+#SBATCH --job-name=test_mpi
+#SBATCH --output=test_output_%j.out
+#SBATCH --error=test_error_%j.err
+#SBATCH --nodes=4
+#SBATCH --ntasks=40
+#SBATCH --ntasks-per-node=10
+#SBATCH --cpus-per-task=1
+#SBATCH --time=00:05:00
+#SBATCH --partition=ncpu
+
+# srun hostname
+module purge
+
+module list
+module load openmpi/gcc-10.3.0/4.1.1
+
+srun -N4 -n40 --mpi=pmi2 --cpu-bind=v,rank singularity exec --bind /usr/bin/srun:/usr/bin/srun \
+                  --bind /usr/lib64/slurm:/usr/lib64/slurm \
+                  --bind /etc/slurm:/etc/slurm \
+                  ../SPECFEMX_withenv_OMPI4.sif \
+                  ./mpi_test
+
+
+
+-------------------------------------------------------------------------- * * * ERROR * * *
+
+No Modulefiles Currently Loaded.
+[ncpu003:2774422] OPAL ERROR: Not initialized in file pmix3x_client.c at line 112
+--------------------------------------------------------------------------
+The application appears to have been direct launched using "srun",
+but OMPI was not built with SLURM's PMI support and therefore cannot
+execute. There are several options for building PMI support under
+SLURM, depending upon the SLURM version you are using:
+
+  version 16.05 or later: you can use SLURM's PMIx support. This
+  requires that you configure and build SLURM --with-pmix.
+
+  Versions earlier than 16.05: you must use either SLURM's PMI-1 or
+  PMI-2 support. SLURM builds PMI-1 by default, or you can manually
+  install PMI-2. You must then build Open MPI using --with-pmi pointing
+  to the SLURM PMI library location.
+
+Please configure as appropriate and try again.
+--------------------------------------------------------------------------
+*** An error occurred in MPI_Init
+*** on a NULL communicator
+*** MPI_ERRORS_ARE_FATAL (processes in this communicator will now abort,
+***    and potentially your MPI job)
+[ncpu003:2774422] Local abort before MPI_INIT completed completed successfully, but am not able to aggregate error messages, and not able to guarantee that all other processes were killed!
+[ncpu003:2774433] OPAL ERROR: Not initialized in file pmix3x_client.c at line 112
+--------------------------------------------------------------------------
+
+
+
+
+
+
+
+
+
+###################################################################################### 
+			             Inclined_strike_slip tests
+###################################################################################### 
+					sbatch submit_job.sh
+					
+
+_____________________________________________Inside singularity_________N1 n24___________ 1 
+#!/bin/bash
+#SBATCH --job-name=test_mpi
+#SBATCH --output=test_output_%j.out
+#SBATCH --error=test_error_%j.err
+#SBATCH --nodes=1
+#SBATCH --ntasks=24
+#SBATCH --ntasks-per-node=24
+#SBATCH --cpus-per-task=1
+#SBATCH --time=00:15:00
+#SBATCH --partition=ncpu
+
+
+# Clean up and create directories
+rm -rf partition output tmp
+mkdir -p output partition tmp
+
+# Run the preprocessing step. Mesh partitioning
+singularity exec ../SPECFEMX_withenv_OMPI4.sif ./bin/partmesh input/inclined_strikeslip.psem
+
+# Load OMPI
+module purge
+module list
+module load openmpi/gcc-10.3.0/4.1.1
+
+mpirun singularity exec ../SPECFEMX_withenv_OMPI4.sif ./bin/pspecfemx input/inclined_strikeslip.psem
+-------------------------------------------------------------------------------------------------------------- * * * WORKING * * *
+-------------------------------------------------------------------------------------------------------------- * * * Rsults proper in ParaView * * *
+
+
+
+
+_____________________________________________Inside singularity_________N1 n32___________ 2 
+#!/bin/bash
+#SBATCH --job-name=test_mpi
+#SBATCH --output=OUT_%j.out
+#SBATCH --error=ERR_%j.err
+#SBATCH --nodes=1
+#SBATCH --ntasks=32
+#SBATCH --ntasks-per-node=32
+#SBATCH --cpus-per-task=1
+#SBATCH --time=00:15:00
+#SBATCH --partition=ncpu
+
+
+# Clean up and create directories
+rm -rf partition output tmp
+mkdir -p output partition tmp
+
+# Run the preprocessing step. Mesh partitioning
+singularity exec ../SPECFEMX_withenv_OMPI4.sif ./bin/partmesh input/inclined_strikeslip.psem
+
+# Load OMPI
+module purge
+module list
+module load openmpi/gcc-10.3.0/4.1.1
+
+mpirun singularity exec ../SPECFEMX_withenv_OMPI4.sif ./bin/pspecfemx input/inclined_strikeslip.psem
+-------------------------------------------------------------------------------------------------------------- * * * WORKING * * *
+-------------------------------------------------------------------------------------------------------------- * * * Rsults proper in ParaView * * *
+
+
+
+
+
+
+
+_____________________________________________Inside singularity_________N2 n24___________ 3 
+#!/bin/bash
+#SBATCH --job-name=test_mpi
+#SBATCH --output=OUT_%j.out
+#SBATCH --error=ERR_%j.err
+#SBATCH --nodes=2
+#SBATCH --ntasks=24
+#SBATCH --ntasks-per-node=12
+#SBATCH --cpus-per-task=1
+#SBATCH --time=00:15:00
+#SBATCH --partition=ncpu
+
+
+# Clean up and create directories
+rm -rf partition output tmp
+mkdir -p output partition tmp
+
+# Run the preprocessing step. Mesh partitioning
+singularity exec ../SPECFEMX_withenv_OMPI4.sif ./bin/partmesh input/inclined_strikeslip.psem
+
+# Load OMPI
+module purge
+module list
+module load openmpi/gcc-10.3.0/4.1.1
+
+mpirun singularity exec ../SPECFEMX_withenv_OMPI4.sif ./bin/pspecfemx input/inclined_strikeslip.psem
+
+------------------------------------------------------------------------------------------------------------------------------------ * * * ERROR * * *
+No Modulefiles Currently Loaded.
+[ncpu004][[18239,1],5][btl_tcp_endpoint.c:625:mca_btl_tcp_endpoint_recv_connect_ack] received unexpected process identifier [[18239,1],8]
+[ncpu004][[18239,1],9][btl_tcp_endpoint.c:625:mca_btl_tcp_endpoint_recv_connect_ack] received unexpected process identifier [[18239,1],8]
+--------------------------------------------------------------------------
+WARNING: Open MPI accepted a TCP connection from what appears to be a
+another Open MPI process but cannot find a corresponding process
+entry for that peer.
+
+This attempted connection will be ignored; your MPI job may or may not
+continue properly.
+
+  Local host: ncpu004
+  PID:        4169316
+--------------------------------------------------------------------------
+[ncpu004][[18239,1],7][btl_tcp_endpoint.c:625:mca_btl_tcp_endpoint_recv_connect_ack] received unexpected process identifier [[18239,1],11]
+
+
+
+
+
+
+
+_____________________________________________Inside singularity_________N2 n10___________ 4
+#!/bin/bash
+#SBATCH --job-name=test_mpi
+#SBATCH --output=OUT_%j.out
+#SBATCH --error=ERR_%j.err
+#SBATCH --nodes=2
+#SBATCH --ntasks=10
+#SBATCH --ntasks-per-node=5
+#SBATCH --cpus-per-task=1
+#SBATCH --time=00:15:00
+#SBATCH --partition=ncpu
+
+
+# Clean up and create directories
+rm -rf partition output tmp
+mkdir -p output partition tmp
+
+# Run the preprocessing step. Mesh partitioning
+singularity exec ../SPECFEMX_withenv_OMPI4.sif ./bin/partmesh input/inclined_strikeslip.psem
+
+# Load OMPI
+module purge
+module list
+module load openmpi/gcc-10.3.0/4.1.1
+
+srun -N2 -n10 --mpi=pmi2 --cpu-bind=v,rank singularity exec --bind /usr/bin/srun:/usr/bin/srun \
+                  --bind /usr/lib64/slurm:/usr/lib64/slurm \
+                  --bind /etc/slurm:/etc/slurm \
+                  --env PATH=$PATH:/usr/soft/openmpi-5.0.2/openmpi-install/bin \
+                  --env LD_LIBRARY_PATH=/usr/lib64/slurm:$LD_LIBRARY_PATH \
+                  ../SPECFEMX_withenv_OMPI4.simg ./bin/pspecfemx input/tohoku_pre-seis.psem
+
+                  
+                  
+                  
+                  
+                  
+                  
+
+
+
+
+
+###################################################################################### 
+			             Tohoku2011 tests
+###################################################################################### 
+			         sbatch submit_job.sh
+					
+					
+___________________________________Inside singularity_________N1 n24___20km-50km-Mesh___2GLL________ 1 
+#!/bin/bash
+#SBATCH --job-name=test_mpi
+#SBATCH --output=test_output_%j.out
+#SBATCH --error=test_error_%j.err
+#SBATCH --nodes=1
+#SBATCH --ntasks=24
+#SBATCH --ntasks-per-node=24
+#SBATCH --cpus-per-task=1
+#SBATCH --time=00:15:00
+#SBATCH --partition=ncpu
+
+
+# Clean up and create directories
+rm -rf partition output tmp
+mkdir -p output partition tmp
+
+# Run the preprocessing step. Mesh partitioning
+singularity exec ../SPECFEMX_withenv_OMPI4.sif ./bin/partmesh input/tohoku_pre-seis.psem
+
+# Load OMPI
+module purge
+module list
+module load openmpi/gcc-10.3.0/4.1.1
+
+mpirun singularity exec ../SPECFEMX_withenv_OMPI4.sif ./bin/pspecfemx input/tohoku_pre-seis.psem
+-------------------------------------------------------------------------------------------------------------- * * * WORKING * * *
+-------------------------------------------------------------------------------------------------------------- * * * Rsults proper in ParaView * * *
+
+
+
+
+
+
+
+___________________________________Inside singularity_________N1 n24___20km-50km-Mesh___3GLL________ 2 
+#!/bin/bash
+#SBATCH --job-name=test_mpi
+#SBATCH --output=test_output_%j.out
+#SBATCH --error=test_error_%j.err
+#SBATCH --nodes=1
+#SBATCH --ntasks=24
+#SBATCH --ntasks-per-node=24
+#SBATCH --cpus-per-task=1
+#SBATCH --time=00:15:00
+#SBATCH --partition=ncpu
+
+
+# Clean up and create directories
+rm -rf partition output tmp
+mkdir -p output partition tmp
+
+# Run the preprocessing step. Mesh partitioning
+singularity exec ../SPECFEMX_withenv_OMPI4.sif ./bin/partmesh input/tohoku_pre-seis.psem
+
+# Load OMPI
+module purge
+module list
+module load openmpi/gcc-10.3.0/4.1.1
+
+mpirun singularity exec ../SPECFEMX_withenv_OMPI4.sif ./bin/pspecfemx input/tohoku_pre-seis.psem
+------------------------------------------------------------------------------------------------------------------------------------ * * * ERROR * * *
+
+mpirun noticed that process rank 5 with PID 3709212 on node ncpu040 exited on signal 9 (Killed).
+--------------------------------------------------------------------------
+slurmstepd: error: Detected 19 oom-kill event(s) in StepId=1875054.batch. Some of your processes may have been killed by the cgroup out-of-memory handler.
+
+
+
+
+###################################################################################### 
+			             With SPECFEMX+SLURM.sif
+###################################################################################### 
+
+
+###################################################################################### 
+			             MPI tests
+###################################################################################### 
+
+sbatch submit_job.sh
+________________________________________ MPI test_____Outside singularity_________N2 n10___________ 1 
+#!/bin/bash
+#SBATCH --job-name=test_mpi
+#SBATCH --output=test_output_%j.out
+#SBATCH --error=test_error_%j.err
+#SBATCH --nodes=2
+#SBATCH --ntasks=10
+#SBATCH --ntasks-per-node=5
+#SBATCH --cpus-per-task=1
+#SBATCH --time=00:05:00
+#SBATCH --partition=ncpu
+
+# srun hostname
+module purge
+
+module list
+module load openmpi/gcc-10.3.0/4.1.1
+
+mpirun ./mpi_test
+-------------------------------------------------------------------------- * * * WORKING * * *
+
+
+
+
+________________________________________ MPI test_____Inside singularity_________N2 n10___________ 2 
+#!/bin/bash
+#SBATCH --job-name=test_mpi
+#SBATCH --output=test_output_%j.out
+#SBATCH --error=test_error_%j.err
+#SBATCH --nodes=2
+#SBATCH --ntasks=10
+#SBATCH --ntasks-per-node=5
+#SBATCH --cpus-per-task=1
+#SBATCH --time=00:05:00
+#SBATCH --partition=ncpu
+
+# srun hostname
+module purge
+
+module list
+module load openmpi/gcc-10.3.0/4.1.1
+
+mpirun singularity exec ../SPECFEMX+SLURM.sif ./mpi_test
+
+-------------------------------------------------------------------------- * * * Got output but with ERROR * * *
+No Modulefiles Currently Loaded.
+--------------------------------------------------------------------------
+WARNING: No preset parameters were found for the device that Open MPI
+detected:
+
+  Local host:            ncpu002
+  Device name:           mlx5_0
+  Device vendor ID:      0x02c9
+  Device vendor part ID: 4123
+
+Default device parameters will be used, which may result in lower
+performance.  You can edit any of the files specified by the
+btl_openib_device_param_files MCA parameter to set values for your
+device.
+
+NOTE: You can turn off this warning by setting the MCA parameter
+      btl_openib_warn_no_device_params_found to 0.
+--------------------------------------------------------------------------
+--------------------------------------------------------------------------
+By default, for Open MPI 4.0 and later, infiniband ports on a device
+are not used by default.  The intent is to use UCX for these devices.
+You can override this policy by setting the btl_openib_allow_ib MCA parameter
+to true.
+
+  Local host:              ncpu002
+  Local adapter:           mlx5_0
+  Local port:              1
+
+--------------------------------------------------------------------------
+--------------------------------------------------------------------------
+WARNING: There was an error initializing an OpenFabrics device.
+
+  Local host:   ncpu002
+  Local device: mlx5_0
+--------------------------------------------------------------------------
+[ncpu002:3372070] 9 more processes have sent help message help-mpi-btl-openib.txt / no device params found
+[ncpu002:3372070] Set MCA parameter "orte_base_help_aggregate" to 0 to see all help / error messages
+[ncpu002:3372070] 9 more processes have sent help message help-mpi-btl-openib.txt / ib port not selected
+[ncpu002:3372070] 9 more processes have sent help message help-mpi-btl-openib.txt / error in device init
+
+
+
+
+
+
+
+
+
+
+###################################################################################### 
+			             Inclined_strike_slip tests
+###################################################################################### 
+					sbatch submit_job.sh
+					
+
+_____________________________________________Inside singularity_________N1 n24___________ 1 
+#!/bin/bash
+#SBATCH --job-name=test_mpi
+#SBATCH --output=test_output_%j.out
+#SBATCH --error=test_error_%j.err
+#SBATCH --nodes=1
+#SBATCH --ntasks=24
+#SBATCH --ntasks-per-node=24
+#SBATCH --cpus-per-task=1
+#SBATCH --time=00:15:00
+#SBATCH --partition=ncpu
+
+
+# Clean up and create directories
+rm -rf partition output tmp
+mkdir -p output partition tmp
+
+# Run the preprocessing step. Mesh partitioning
+singularity exec ../SPECFEMX+SLURM.sif ./bin/partmesh input/inclined_strikeslip.psem
+
+# Load OMPI
+module purge
+module list
+module load openmpi/gcc-10.3.0/4.1.1
+
+mpirun singularity exec ../SPECFEMX+SLURM.sif ./bin/pspecfemx input/inclined_strikeslip.psem
+-------------------------------------------------------------------------------------------------------------- * * * WORKING with same ERROR as in mpi_test* * *
+-------------------------------------------------------------------------------------------------------------- * * * Rsults proper in ParaView * * *
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+_____________________________________________Inside singularity_________N2 n24___________ 2 
+#!/bin/bash
+#SBATCH --job-name=test_mpi
+#SBATCH --output=OUT_%j.out
+#SBATCH --error=ERR_%j.err
+#SBATCH --nodes=2
+#SBATCH --ntasks=12
+#SBATCH --ntasks-per-node=6
+#SBATCH --cpus-per-task=1
+#SBATCH --time=00:15:00
+#SBATCH --partition=ncpu
+
+
+# Clean up and create directories
+rm -rf partition output tmp
+mkdir -p output partition tmp
+
+# Run the preprocessing step. Mesh partitioning
+singularity exec ../SPECFEMX+SLURM.sif ./bin/partmesh input/inclined_strikeslip.psem
+
+# Load OMPI
+module purge
+module list
+module load openmpi/gcc-10.3.0/4.1.1
+
+mpirun singularity exec ../SPECFEMX+SLURM.sif ./bin/pspecfemx input/inclined_strikeslip.psem
+
+------------------------------------------------------------------------------------------------------------------------------------ * * * same ERROR as before * * *
+No Modulefiles Currently Loaded.
+[ncpu004][[18239,1],5][btl_tcp_endpoint.c:625:mca_btl_tcp_endpoint_recv_connect_ack] received unexpected process identifier [[18239,1],8]
+[ncpu004][[18239,1],9][btl_tcp_endpoint.c:625:mca_btl_tcp_endpoint_recv_connect_ack] received unexpected process identifier [[18239,1],8]
+--------------------------------------------------------------------------
+WARNING: Open MPI accepted a TCP connection from what appears to be a
+another Open MPI process but cannot find a corresponding process
+entry for that peer.
+
+This attempted connection will be ignored; your MPI job may or may not
+continue properly.
+
+  Local host: ncpu004
+  PID:        4169316
+--------------------------------------------------------------------------
+[ncpu004][[18239,1],7][btl_tcp_endpoint.c:625:mca_btl_tcp_endpoint_recv_connect_ack] received unexpected process identifier [[18239,1],11]
+
+
+
+
+
+
+
+
+
+
+
+__________________________________________________________________Inside singularity________N2 n12___________with srun___ 3 by Bastien 
+#!/bin/bash
+#SBATCH --job-name=test_mpi
+#SBATCH --output=test_output_%j.out
+#SBATCH --error=test_error_%j.err
+#SBATCH --nodes=2
+#SBATCH --ntasks=12
+#SBATCH --ntasks-per-node=6
+#SBATCH --cpus-per-task=1
+#SBATCH --time=00:15:00
+#SBATCH --partition=ncpu
+
+
+# Clean up and create directories
+rm -rf partition output tmp
+mkdir -p output partition tmp
+
+# Run the preprocessing step. Mesh partitioning
+singularity exec ../SPECFEMX+SLURM.sif ./bin/partmesh input/inclined_strikeslip.psem
+
+# Load OMPI
+module purge
+module list
+module load openmpi/gcc-10.3.0/4.1.1
+
+
+srun -N2 -n12 --mpi=pmi2 --cpu-bind=v,rank singularity exec --bind /usr/bin/srun:/usr/bin/srun \
+                  --bind /usr/lib64/slurm:/usr/lib64/slurm \
+                  --bind /etc/slurm:/etc/slurm \
+                  ../SPECFEMX+SLURM.sif \
+                  ./bin/pspecfemx input/inclined_strikeslip.psem
+                  
+                  
+------------------------------------------------------------------------------------------------------------------------------------ * * *ERROR * * *                  
+WARNING: No preset parameters were found for the device that Open MPI
+detected:
+
+  Local host:            ncpu008
+  Device name:           mlx5_0
+  Device vendor ID:      0x02c9
+  Device vendor part ID: 4123
+
+Default device parameters will be used, which may result in lower
+performance.  You can edit any of the files specified by the
+btl_openib_device_param_files MCA parameter to set values for your
+device.
+
+NOTE: You can turn off this warning by setting the MCA parameter
+      btl_openib_warn_no_device_params_found to 0.
+--------------------------------------------------------------------------
+--------------------------------------------------------------------------
+By default, for Open MPI 4.0 and later, infiniband ports on a device
+are not used by default.  The intent is to use UCX for these devices.
+You can override this policy by setting the btl_openib_allow_ib MCA parameter
+to true.
+
+  Local host:              ncpu008
+  Local adapter:           mlx5_0
+  Local port:              1
+
+--------------------------------------------------------------------------
+--------------------------------------------------------------------------
+WARNING: There was an error initializing an OpenFabrics device.
+
+  Local host:   ncpu008
+  Local device: mlx5_0
+--------------------------------------------------------------------------
+[ncpu002][[42817,0],3][btl_tcp_endpoint.c:625:mca_btl_tcp_endpoint_recv_connect_ack] received unexpected process identifier [[42817,0],0]
+[ncpu002][[42817,0],5][btl_tcp_endpoint.c:625:mca_btl_tcp_endpoint_recv_connect_ack] received unexpected process identifier [[42817,0],0]
+

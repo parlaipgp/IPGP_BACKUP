@@ -1,0 +1,112 @@
+download from https://github.com/sylabs/singularity/releases
+dpkg -i  singularity-ce_4.1.2-jammy_amd64.deb
+apt -f install
+********** file specfem.def ****
+Bootstrap: docker
+From: ubuntu:latest
+
+%files
+openmpi-5.0.2.tar.gz
+scotch-master.zip
+SPECFEMX-freq.zip
+%post
+apt-get update && apt-get -y install wget build-essential
+***************** build container
+sudo singularity build --sandbox specfem.img specfem.def (fake root better ?)
+sudo singularity shell --writable specfem.img
+apt-get update
+apt-get upgrade
+apt-get install gfortran
+apt-get install flex
+apt-get install bison
+apt-get install python3
+apt-get install cmake
+apt-get install cmake-curses.gui
+apt-get install git
+apt-get install unzip
+apt-get install gedit
+cd /
+mkdir /usr/soft
+mv scotch-master.zip SPECFEMX-freq.zip openmpi-5.0.2.tar.gz /usr/soft
+cd /usr/soft
+####################################################
+#  install MPI (it takes time be patient)
+#  https://docs.open-mpi.org/
+####################################################
+gunzip openmpi-5.0.2.tar.gz
+tar xvf openmpi-5.0.2.tar
+cd openmpi-5.0.2 
+./configure --prefix=/usr/soft/openmpi CC=gcc CXX=g++ FC=gfortran --disable-dependency-tracking
+make -j 4
+make install
+PATH=$PATH:/usr/soft/openmpi/bin
+export OMPI_ALLOW_RUN_AS_ROOT=1
+export OMPI_ALLOW_RUN_AS_ROOT_CONFIRM=1  
+
+
+
+
+
+
+ 
+####################################################
+# PETSC
+# https://petsc.org/release/install/download/
+####################################################
+cd /usr/soft
+git clone -b release https://gitlab.com/petsc/petsc.git petsc
+cd petsc
+./configure --download-fblaslapack=1
+make PETSC_DIR=/usr/soft/petsc PETSC_ARCH=arch-linux-c-debug all
+make PETSC_DIR=/usr/soft/petsc PETSC_ARCH=arch-linux-c-debug check (doesn't work probably because we are root)  
+export PETSC_DIR=/usr/soft/petsc
+export PETSC_ARCH=arch-linux-c-debug
+
+
+
+####################################################
+#  instal SCOTCH
+# https://gitlab.inria.fr/scotch/scotch
+####################################################
+cd /usr/soft
+unzip scotch-master.zip
+cd scotch-master
+mkdir build
+cd build
+cmake -DCMAKE_INSTALL_PREFIX=/usr/soft/scotch -DCMAKE_BUILD_TYPE=Release .. -DCMAKE_PREFIX_PATH=/usr/soft/openmpi/lib -DCMAKE_C_COMPILER=/usr/soft/openmpi/bin/mpicc -DCMAKE_CXX_COMPILER=/usr/soft/openmpi/bin/mpicxx
+make -j 4
+make install
+ 
+ctest
+export SCOTCH_LIBRARY_PATH=/usr/soft/scotch/lib
+export SCOTCH_INCLUDE_PATH=/usr/soft/scotch/include
+####################################################
+#  instal SPECFEM from github
+# 
+####################################################
+cd /usr/soft
+unzip SPECFEMX-freq.zip
+cd /usr/soft/SPECFEMX-freq
+mkdir build
+cd build
+ccmake ../.
+ BUILD_PARTMESH                  *ON
+ ENABLE_MPI                      *ON
+ ENABLE_PETSC                    *ON
+ SCOTCH_INCLUDE_PATH             */usr/soft/scotch/include/
+ SCOTCH_LIBRARY_PATH             */usr/soft/scotch/lib/   
+ CMAKE_Fortran_COMPILER           /usr/soft/openmpi/bin/mpif90
+ and generate
+make -j 
+####################################################
+#  run SPECFEM
+#  8 proc doesn't work 
+####################################################
+cd /usr/soft/SPECFEMX-freq/examples/coseismic_vertical_fault_nsplit_parallel
+mkdir output tmp partition
+ln -s /usr/soft/SPECFEMX-freq/build/bin .
+gedit /usr/soft/SPECFEMX-freq/input/vfault.psem (change nproc)
+./bin/partmesh /usr/soft/SPECFEMX-freq/input/vfault.psem
+mpirun -n 4 ./bin/pspecfemx /usr/soft/SPECFEMX-freq/input/vfault.psem
+sudo singularity build specfemX.img specfem.img
+

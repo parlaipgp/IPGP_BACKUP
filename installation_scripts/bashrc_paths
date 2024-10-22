@@ -1,0 +1,35 @@
+## ----------------------MPICH----------------------------------
+
+#PATH=$PATH:/home/rajesh/MPICH/mpich-4.2.0/mpich-install/bin
+#PATH=$PATH:/usr/local/MPICH/mpich-4.2.0/mpich-install/bin
+#export LD_LIBRARY_PATH=/home/rajesh/MPICH/mpich-4.2.0/mpich-install/lib:$LD_LIBRARY_PATH
+#export LD_INCLUDE_PATH=/home/rajesh/MPICH/mpich-4.2.0/mpich-install/include:$LD_INCLUDE_PATH
+
+## ---------------------OpenMPI---------------------------------
+
+PATH=$PATH:/home/rajesh/OPENMPI/openmpi-5.0.2/openmpi-install/bin
+export LD_LIBRARY_PATH=/home/rajesh/OPENMPI/openmpi-5.0.2/openmpi-install/lib:$LD_LIBRARY_PATH
+export LD_INCLUDE_PATH=/home/rajesh/OPENMPI/openmpi-5.0.2/openmpi-install/include:$LD_INCLUDE_PATH
+
+
+## ---------------------SCOTCH------------------------------------
+
+PATH=$PATH:/home/rajesh/SCOTCH/scotch-v7.0.4/scotch-install/bin
+export LD_LIBRARY_PATH=/home/rajesh/SCOTCH/scotch-v7.0.4/scotch-install/lib:$LD_LIBRARY_PATH
+export LD_INCLUDE_PATH=/home/rajesh/SCOTCH/scotch-v7.0.4/scotch-instal/include:$LD_INCLUDE_PATH
+
+
+
+
+## ---------------------PETSc----------------------------------------
+
+export PETSC_DIR=/home/rajesh/PETSC/petsc-3.20.4
+export PETSC_ARCH=arch-linux2-c-debug
+
+
+
+
+##-----------MPICH and SCOTCH include paths as shown by Dr.HN----------
+
+#export LD_LIBRARY_PATH=/home/rajesh/MPICH/mpich-4.2.0/mpich-install/lib:/home/rajesh/SCOTCH/scotch-v7.0.4/scotch-install/lib:$LD_LIBRARY_PATH
+#export LD_INCLUDE_PATH=/home/rajesh/MPICH/mpich-4.2.0/mpich-install/include:/home/rajesh/SCOTCH/scotch-v7.0.4/scotch-instal/include:$LD_INCLUDE_PATH

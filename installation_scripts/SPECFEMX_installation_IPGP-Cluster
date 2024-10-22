@@ -1,0 +1,66 @@
+
+
+========================================SCOTCH======================================== 
+cd /gpfs/scratch/parla/
+tar -xvjf scotch-v7.0.4.tar.bz2
+cd scotch-v7.0.4
+
+mkdir scotch-install
+
+module load openmpi/gcc-10.3.0/4.1.1
+
+cmake -DCMAKE_INSTALL_PREFIX=/gpfs/scratch/parla/scotch-v7.0.4/scotch-install -DCMAKE_BUILD_TYPE=Release -DMPI_C_COMPILER=/softs/openmpi/gcc-10.3.0/4.1.1/bin/mpicc -DMPI_CXX_COMPILER=/softs/openmpi/gcc-10.3.0/4.1.1/bin/mpicxx -DMPI_C_INCLUDE_PATH=/softs/openmpi/gcc-10.3.0/4.1.1/include -DMPIEXEC_EXECUTABLE=/softs/openmpi/gcc-10.3.0/4.1.1/bin/mpiexec
+
+make -j
+
+ctest
+make install
+
+export PATH=$PATH:/gpfs/scratch/parla/scotch-v7.0.4/scotch-install/bin
+export SCOTCH_LIBRARY_PATH=/gpfs/scratch/parla/scotch-v7.0.4/scotch-install/lib
+export SCOTCH_INCLUDE_PATH=/gpfs/scratch/parla/scotch-v7.0.4/scotch-install/include
+
+
+========================================Petsc========================================
+
+cd /gpfs/scratch/parla/
+
+git clone -b release https://gitlab.com/petsc/petsc.git petsc
+cd petsc
+
+export PETSC_DIR=/gpfs/scratch/parla/petsc
+export PETSC_ARCH=arch-linux2-c-debug
+
+
+./configure --download-fblaslapack=1
+
+>> Follow commands
+
+
+
+
+========================================SPECFEMX======================================= Here we are
+
+cd /gpfs/scratch/parla/
+rm -r SPECFEMX-freq
+unzip SPECFEMX-freq.zip
+
+cd SPECFEMX-freq
+mkdir specfemx-install
+cd specfemx-install
+
+module load cmake/3.29.1
+
+ccmake /gpfs/scratch/parla/SPECFEMX-freq
+
+	• opens interactable window, follow SPECFEMX manual to on/off flags
+	• go to advance options (press t)
+	• change “CMAKE_Fortran_COMPILER” from “/usr/bin/f95” to “mpif90”
+	• add paths of SCOTCH include and lib directories
+	• configure (press c)
+	• generate (press g)
+	
+make
+
+			* * * END * * *
+

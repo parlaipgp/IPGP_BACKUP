@@ -1,0 +1,352 @@
+
+========================================bashrc==================================================
+================================================================================================
+## ---------------------OpenMPI or MPICH (change accordingly)---------------------------------
+PATH=$PATH:/home/rajesh/OPENMPI/openmpi-5.0.2/openmpi-install/bin
+export LD_LIBRARY_PATH=/home/rajesh/OPENMPI/openmpi-5.0.2/openmpi-install/lib:$LD_LIBRARY_PATH
+export LD_INCLUDE_PATH=/home/rajesh/OPENMPI/openmpi-5.0.2/openmpi-install/include:$LD_INCLUDE_PATH
+## ---------------------SCOTCH------------------------------------
+PATH=$PATH:/home/rajesh/SCOTCH/scotch-v7.0.4/scotch-install/bin
+export LD_LIBRARY_PATH=/home/rajesh/SCOTCH/scotch-v7.0.4/scotch-install/lib:$LD_LIBRARY_PATH
+export LD_INCLUDE_PATH=/home/rajesh/SCOTCH/scotch-v7.0.4/scotch-instal/include:$LD_INCLUDE_PATH
+## ---------------------PETSc----------------------------------------
+export PETSC_DIR=/home/rajesh/PETSC/petsc-3.20.4
+export PETSC_ARCH=arch-linux2-c-debug
+
+
+
+=========================================   Trail 1 ====================================================
+========================================================================================================
+-----openmpi 5.0.2 (compiled using cmake 3.16) 
+-----scotch 7.0.4 (compiled with openmpi + cmake 3.16) 
+---- petsc (compiled before with mpich + cmake 3.20)
+________________________________________________________________________________________________________
+SPECFEX error:
+   CMake Warning at CMakeLists.txt:113 (MESSAGE):
+   MPI Fortran compiler:
+   /home/rajesh/OPENMPI/openmpi-5.0.2/openmpi-install/bin/mpif90 doesn't work!
+   Parallel semgeotech cannot be built! Change Dir:
+   /home/rajesh/SPECFEM-X-master/specfemx-install/CMakeTmp/CMakeFiles/CMakeTmp
+
+
+
+
+   Run Build Command(s):/usr/bin/make cmTC_6fd56/fast && /usr/bin/make -f
+   CMakeFiles/cmTC_6fd56.dir/build.make CMakeFiles/cmTC_6fd56.dir/build
+
+   make[1]: Entering directory
+   '/home/rajesh/SPECFEM-X-master/specfemx-install/CMakeTmp/CMakeFiles/CMakeTmp'
+
+
+   Building Fortran object CMakeFiles/cmTC_6fd56.dir/testmpi.f90.o
+
+   /usr/bin/f95 -c /home/rajesh/SPECFEM-X-master/src/testmpi.f90 -o
+   CMakeFiles/cmTC_6fd56.dir/testmpi.f90.o
+
+   /home/rajesh/SPECFEM-X-master/src/testmpi.f90:3:4:
+
+
+
+       3 | use mpi
+         |    1
+
+   Fatal Error: Cannot open module file mpi.mod for reading at (1): No
+   such file or directory
+
+   compilation terminated.
+
+   make[1]: *** [CMakeFiles/cmTC_6fd56.dir/build.make:66:
+   CMakeFiles/cmTC_6fd56.dir/testmpi.f90.o] Error 1
+
+   make[1]: Leaving directory
+   '/home/rajesh/SPECFEM-X-master/specfemx-install/CMakeTmp/CMakeFiles/CMakeTmp'
+
+
+   make: *** [Makefile:121: cmTC_6fd56/fast] Error 2
+
+______________________________________________end__________________________________________________________
+
+
+
+
+
+
+=========================================   Trail 2 ========================================================
+===========================================================================================================
+
+-----openmpi 5.0.2 (compiled using cmake 3.16) 
+-----scotch 7.0.4 (compiled with openmpi + cmake 3.16) 
+---- petsc (compiled with openmpi + cmake 3.20)
+____________________________________________________________________________________________________________
+PETSc Error:
+
+rajesh@Precision-7920-Gravi:~/PETSC/petsc-3.20.4$ make PETSC_DIR=/home/rajesh/PETSC/petsc-3.20.4 PETSC_ARCH=arch-linux2-c-debug check
+Running PETSc check examples to verify correct installation
+Using PETSC_DIR=/home/rajesh/PETSC/petsc-3.20.4 and PETSC_ARCH=arch-linux2-c-debug
+Possible error running C/C++ src/snes/tutorials/ex19 with 1 MPI process
+See https://petsc.org/release/faq/
+hwloc/linux: Ignoring PCI device with non-16bit domain.
+Pass --enable-32bits-pci-domain to configure to support such devices
+(warning: it would break the library ABI, don't enable unless really needed).
+lid velocity = 0.0016, prandtl # = 1., grashof # = 1.
+Number of SNES iterations = 2
+Possible error running C/C++ src/snes/tutorials/ex19 with 2 MPI processes
+See https://petsc.org/release/faq/
+hwloc/linux: Ignoring PCI device with non-16bit domain.
+Pass --enable-32bits-pci-domain to configure to support such devices
+(warning: it would break the library ABI, don't enable unless really needed).
+lid velocity = 0.0016, prandtl # = 1., grashof # = 1.
+Number of SNES iterations = 2
+0a1,3
+> hwloc/linux: Ignoring PCI device with non-16bit domain.
+> Pass --enable-32bits-pci-domain to configure to support such devices
+> (warning: it would break the library ABI, don't enable unless really needed).
+/home/rajesh/PETSC/petsc-3.20.4/src/snes/tutorials
+Possible problem with ex19 running with mumps, diffs above
+=========================================
+0a1,3
+> hwloc/linux: Ignoring PCI device with non-16bit domain.
+> Pass --enable-32bits-pci-domain to configure to support such devices
+> (warning: it would break the library ABI, don't enable unless really needed).
+/home/rajesh/PETSC/petsc-3.20.4/src/snes/tutorials
+Possible problem with ex19 running with superlu_dist, diffs above
+=========================================
+Possible error running Fortran example src/snes/tutorials/ex5f with 1 MPI process
+See https://petsc.org/release/faq/
+hwloc/linux: Ignoring PCI device with non-16bit domain.
+Pass --enable-32bits-pci-domain to configure to support such devices
+(warning: it would break the library ABI, don't enable unless really needed).
+Number of SNES iterations =     3
+Completed PETSc check examples
+Error while running make check
+make[1]: *** [makefile:132: check] Error 1
+make: *** [GNUmakefile:17: check] Error 2
+____________________________________________________________________________________________________________
+Proceeded with above PETSc error to compile SPECFEMX
+
+**Same mpif90 doesnt work error as in trail 1 **
+
+______________________________________________________end__________________________________________________
+
+
+
+
+
+=========================================   Trail 3 =======================================================
+===========================================================================================================
+updated cmake for all compilings
+cmake version 3.20.0
+ccmake version 3.16.3 (showing "ccmake not available", so had to install separatly)
+
+-----openmpi 5.0.2 (compiled using cmake 3.20) 
+-----scotch 7.0.4 (compiled with openmpi + cmake 3.20) 
+---- petsc (compiled with openmpi + cmake 3.20)
+___________________________________________________________________________________________________________
+PETSc Error:
+ **Same error as in Trail 2**
+ 
+SPECFEMX:
+Proceeded with above PETSc error to compile SPECFEMX
+**Same mpif90 doesnt work error as in trail 1 **
+_____________________________________________________end________________________________________________
+
+
+
+=========================================   Trail 4 ======================================================
+==========================================================================================================
+-----mpich-4.2.0 (compiled using cmake 3.20) 
+-----scotch 7.0.4 (compiled with mpich-4.2.0 + cmake 3.20) 
+---- petsc (compiled with mpich-4.2.0 + cmake 3.20)
+__________________________________________________________________________________________________________
+
+**No PETSc error while installing**
+
+SPECFEMX:
+**Same mpif90 doesnt work error as in trail 1 **
+_____________________________________________________end________________________________________________
+
+
+SCOTCH installation:
+
+-- Flex found here: /usr/bin/flex
+-- Performing Test CMAKE_HAVE_LIBC_PTHREAD
+-- Performing Test CMAKE_HAVE_LIBC_PTHREAD - Failed        *****
+-- Looking for pthread_create in pthreads
+-- Looking for pthread_create in pthreads - not found      *****
+-- Looking for pthread_create in pthread
+-- Looking for pthread_create in pthread - found
+-- Found Threads: TRUE
+-- Looking for pthread_setaffinity_np
+
+-- Looking for pthread_setaffinity_np - found
+-- Found ZLIB: /usr/lib/x86_64-linux-gnu/libz.so (found version "1.2.11")
+
+
+
+
+____________________________________end______________________________________________________________
+
+Error in specfemx make -j 8
+
+-----openmpi 5.0.2 (compiled with cmake version 3.29) 
+-----scotch 7.0.4 (compiled with openmpi + cmake 3.29) 
+---- petsc (compiled with openmpi + cmake 3.29)
+
+/home/rajesh/SPECFEMX-freq/src/parsolver_petsc.F90:57:0:
+
+   57 | PetscCallA(PetscInitialize(ierr))
+      | 
+Error: Unclassifiable statement at (1)
+/home/rajesh/SPECFEMX-freq/src/parsolver_petsc.F90:19:4:
+
+   19 | use petscksp
+      |    1
+Error: Symbol ‘iscreategeneral’ at (1) has no IMPLICIT type; did you mean ‘is_general’?
+/home/rajesh/SPECFEMX-freq/src/parsolver_petsc.F90:19:4:
+
+   19 | use petscksp
+      |    1
+Error: Symbol ‘iscreatestride’ at (1) has no IMPLICIT type; did you mean ‘iceratefile’?
+/home/rajesh/SPECFEMX-freq/src/parsolver_petsc.F90:19:4:
+
+   19 | use petscksp
+      |    1
+Error: Symbol ‘kspcreate’ at (1) has no IMPLICIT type; did you mean ‘icerate’?
+/home/rajesh/SPECFEMX-freq/src/parsolver_petsc.F90:19:4:
+
+   19 | use petscksp
+      |    1
+Error: Symbol ‘kspgetconvergedreason’ at (1) has no IMPLICIT type; did you mean ‘ksp_converged_atol’?
+/home/rajesh/SPECFEMX-freq/src/parsolver_petsc.F90:19:4:
+
+   19 | use petscksp
+      |    1
+Error: Symbol ‘kspgetiterationnumber’ at (1) has no IMPLICIT type
+/home/rajesh/SPECFEMX-freq/src/parsolver_petsc.F90:19:4:
+
+   19 | use petscksp
+      |    1
+Error: Symbol ‘kspgetpc’ at (1) has no IMPLICIT type; did you mean ‘ksp_atol’?
+/home/rajesh/SPECFEMX-freq/src/parsolver_petsc.F90:19:4:
+
+   19 | use petscksp
+      |    1
+Error: Symbol ‘kspsetdiagonalscale’ at (1) has no IMPLICIT type; did you mean ‘matop_diagonal_scale’?
+/home/rajesh/SPECFEMX-freq/src/parsolver_petsc.F90:19:4:
+
+   19 | use petscksp
+      |    1
+Error: Symbol ‘kspsetfromoptions’ at (1) has no IMPLICIT type; did you mean ‘matop_set_from_options’?
+/home/rajesh/SPECFEMX-freq/src/parsolver_petsc.F90:19:4:
+
+   19 | use petscksp
+      |    1
+Error: Symbol ‘kspsetoperators’ at (1) has no IMPLICIT type
+compilation terminated due to -fmax-errors=10.
+make[2]: *** [src/CMakeFiles/parsem.dir/build.make:166: src/CMakeFiles/parsem.dir/parsolver_petsc.F90.o] Error 1
+make[1]: *** [CMakeFiles/Makefile2:172: src/CMakeFiles/parsem.dir/all] Error 2
+make: *** [Makefile:91: all] Error 2
+
+__________________________________________________end________________________________________________________________
+
+-----mpich-4.2.0 (compiled using cmake 3.23.1) 
+-----scotch 7.0.4 (compiled with mpich-4.2.0 + cmake 3.23.1) 
+---- petsc 3.16.4 (compiled with mpich-4.2.0 + cmake 3.23.1)
+-------------------------------------------------------------------------------------------
+PETSC error:
+
+Running check examples to verify correct installation
+Using PETSC_DIR=/home/rajesh/PETSC/petsc-3.16.4 and PETSC_ARCH=arch-linux2-c-debug
+Possible error running C/C++ src/snes/tutorials/ex19 with 1 MPI process
+See http://www.mcs.anl.gov/petsc/documentation/faq.html
+Invalid MIT-MAGIC-COOKIE-1 keylid velocity = 0.0016, prandtl # = 1., grashof # = 1.
+Number of SNES iterations = 2
+Possible error running C/C++ src/snes/tutorials/ex19 with 2 MPI processes
+See http://www.mcs.anl.gov/petsc/documentation/faq.html
+Invalid MIT-MAGIC-COOKIE-1 keylid velocity = 0.0016, prandtl # = 1., grashof # = 1.
+Number of SNES iterations = 2
+1c1
+< lid velocity = 0.0625, prandtl # = 1., grashof # = 1.
+---
+> Invalid MIT-MAGIC-COOKIE-1 keylid velocity = 0.0625, prandtl # = 1., grashof # = 1.
+/home/rajesh/PETSC/petsc-3.16.4/src/snes/tutorials
+Possible problem with ex19 running with mumps, diffs above
+=========================================
+1c1
+< lid velocity = 0.0025, prandtl # = 1., grashof # = 1.
+---
+> Invalid MIT-MAGIC-COOKIE-1 keylid velocity = 0.0025, prandtl # = 1., grashof # = 1.
+/home/rajesh/PETSC/petsc-3.16.4/src/snes/tutorials
+Possible problem with ex19 running with superlu_dist, diffs above
+=========================================
+Possible error running Fortran example src/snes/tutorials/ex5f with 1 MPI process
+See http://www.mcs.anl.gov/petsc/documentation/faq.html
+Invalid MIT-MAGIC-COOKIE-1 keyNumber of SNES iterations =     4
+Completed test examples
+---------------------------------------------------------------------------------------------------
+most of the PETSc tests are running if do manually ($ make test searchin='tutorials'), so proceeded with above error to compile SPECFEMX
+
+****SPECFEMX compiled sucessfully,
+
+****Error with make -j 8
+
+[ 67%] Building Fortran object src/CMakeFiles/parsem.dir/parsolver_petsc.F90.o
+/home/rajesh/SPECFEMX-freq/src/parsolver_petsc.F90:57:0:
+
+   57 | PetscCallA(PetscInitialize(ierr))
+      | 
+Error: Unclassifiable statement at (1)
+/home/rajesh/SPECFEMX-freq/src/parsolver_petsc.F90:19:4:
+
+   19 | use petscksp
+      |    1
+Error: Symbol ‘iscreategeneral’ at (1) has no IMPLICIT type; did you mean ‘is_general’?
+/home/rajesh/SPECFEMX-freq/src/parsolver_petsc.F90:19:4:
+
+   19 | use petscksp
+      |    1
+Error: Symbol ‘iscreatestride’ at (1) has no IMPLICIT type; did you mean ‘iceratefile’?
+/home/rajesh/SPECFEMX-freq/src/parsolver_petsc.F90:19:4:
+
+   19 | use petscksp
+      |    1
+Error: Symbol ‘kspcreate’ at (1) has no IMPLICIT type; did you mean ‘icerate’?
+/home/rajesh/SPECFEMX-freq/src/parsolver_petsc.F90:19:4:
+
+   19 | use petscksp
+      |    1
+Error: Symbol ‘kspgetconvergedreason’ at (1) has no IMPLICIT type; did you mean ‘ksp_converged_atol’?
+/home/rajesh/SPECFEMX-freq/src/parsolver_petsc.F90:19:4:
+
+   19 | use petscksp
+      |    1
+Error: Symbol ‘kspgetiterationnumber’ at (1) has no IMPLICIT type
+/home/rajesh/SPECFEMX-freq/src/parsolver_petsc.F90:19:4:
+
+   19 | use petscksp
+      |    1
+Error: Symbol ‘kspgetpc’ at (1) has no IMPLICIT type; did you mean ‘ksp_atol’?
+/home/rajesh/SPECFEMX-freq/src/parsolver_petsc.F90:19:4:
+
+   19 | use petscksp
+      |    1
+Error: Symbol ‘kspsetdiagonalscale’ at (1) has no IMPLICIT type; did you mean ‘matop_diagonal_scale’?
+/home/rajesh/SPECFEMX-freq/src/parsolver_petsc.F90:19:4:
+
+   19 | use petscksp
+      |    1
+Error: Symbol ‘kspsetfromoptions’ at (1) has no IMPLICIT type; did you mean ‘matop_set_from_options’?
+/home/rajesh/SPECFEMX-freq/src/parsolver_petsc.F90:19:4:
+
+   19 | use petscksp
+      |    1
+Error: Symbol ‘kspsetoperators’ at (1) has no IMPLICIT type
+compilation terminated due to -fmax-errors=10.
+make[2]: *** [src/CMakeFiles/parsem.dir/build.make:166: src/CMakeFiles/parsem.dir/parsolver_petsc.F90.o] Error 1
+make[1]: *** [CMakeFiles/Makefile2:172: src/CMakeFiles/parsem.dir/all] Error 2
+make: *** [Makefile:91: all] Error 2
+________________________________end___________________________________________________________________________
+
+
+
+

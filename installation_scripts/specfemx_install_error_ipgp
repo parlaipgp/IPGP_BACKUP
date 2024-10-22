@@ -1,0 +1,108 @@
+ Configuring done (0.5s)
+ You have changed variables that require your cache to be deleted.
+ Configure will be re-run and you may have to reset some variables.
+ The following variables have changed:
+ CMAKE_Fortran_COMPILER= mpif90
+ The Fortran compiler identification is GNU 10.3.0
+ cc1: warning: command-line option -fallow-argument-mismatch is valid for Fortran but not for C
+ The C compiler identification is GNU 8.3.1
+ Detecting Fortran compiler ABI info
+ Detecting Fortran compiler ABI info - done
+ Check for working Fortran compiler: /gpfs/softs/intel/oneapi/mpi/2021.2.0/bin/mpif90 - skipped
+ Detecting C compiler ABI info
+ Detecting C compiler ABI info - done
+ Check for working C compiler: /usr/bin/cc - skipped
+ Detecting C compile features
+ Detecting C compile features - done
+ Setting build type to 'Debug' as none was specified.
+ The CXX compiler identification is GNU 8.3.1
+ Detecting CXX compiler ABI info
+ Detecting CXX compiler ABI info - done
+ Check for working CXX compiler: /usr/bin/c++ - skipped
+ Detecting CXX compile features
+ Detecting CXX compile features - done
+ Configuring done (1.4s)
+______________________________________________________________________________
+
+
+BUILD_DOCUMENTATION               OFF
+ BUILD_PARTMESH                   OFF
+ BUILD_UTIL_EXODUSNEW2SEM         OFF
+ BUILD_UTIL_EXODUSOLD2SEM         OFF
+ BUILD_UTIL_WRITE_SOS             OFF
+ 
+ 
+
+ CMAKE_ADDR2LINE                  /usr/bin/addr2line
+ CMAKE_AR                         /usr/bin/ar
+ CMAKE_BUILD_TYPE                 Debug
+ CMAKE_COLOR_MAKEFILE             ON
+ CMAKE_CXX_COMPILER               /usr/bin/c++
+ CMAKE_CXX_COMPILER_AR            /usr/bin/gcc-ar
+ CMAKE_CXX_COMPILER_RANLIB        /usr/bin/gcc-ranlib
+ CMAKE_CXX_FLAGS
+ CMAKE_CXX_FLAGS_DEBUG            -g
+ CMAKE_CXX_FLAGS_MINSIZEREL       -Os -DNDEBUG
+ CMAKE_CXX_FLAGS_RELEASE          -O3 -DNDEBUG
+ CMAKE_CXX_FLAGS_RELWITHDEBINFO   -O2 -g -DNDEBUG
+ CMAKE_C_COMPILER                 /usr/bin/cc
+ CMAKE_C_COMPILER_AR              /usr/bin/gcc-ar
+ CMAKE_C_COMPILER_RANLIB          /usr/bin/gcc-ranlib
+ CMAKE_C_FLAGS                    -I/softs/openmpi/intel-21U2/4.1.1-ucx-1.10.1/include:-I/softs/ucx/1.10.1/include
+ CMAKE_C_FLAGS_DEBUG              -g
+ CMAKE_C_FLAGS_MINSIZEREL         -Os -DNDEBUG
+ CMAKE_C_FLAGS_RELEASE            -O3 -DNDEBUG
+ CMAKE_C_FLAGS_RELWITHDEBINFO     -O2 -g -DNDEBUG
+ CMAKE_DLLTOOL                    CMAKE_DLLTOOL-NOTFOUND
+ CMAKE_EXE_LINKER_FLAGS           -L/softs/openmpi/intel-21U2/4.1.1-ucx-1.10.1/lib:-L/softs/ucx/1.10.1/lib
+ CMAKE_EXE_LINKER_FLAGS_DEBUG     
+ CMAKE_EXE_LINKER_FLAGS_MINSIZE   
+ CMAKE_EXE_LINKER_FLAGS_RELEASE   
+ CMAKE_EXE_LINKER_FLAGS_RELWITH   
+ CMAKE_EXPORT_COMPILE_COMMANDS    OFF
+ CMAKE_Fortran_COMPILER           /gpfs/softs/intel/oneapi/compiler/2021.2.0/linux/bin/intel64/ifort
+ 
+ 
+ 
+ CMAKE_Fortran_FLAGS
+ CMAKE_Fortran_FLAGS_DEBUG        -g
+ CMAKE_Fortran_FLAGS_MINSIZEREL   -Os
+ CMAKE_Fortran_FLAGS_RELEASE      -O3
+ CMAKE_Fortran_FLAGS_RELWITHDEB   -O2 -g
+ CMAKE_INSTALL_PREFIX             /usr/local
+ CMAKE_LINKER                     /usr/bin/ld
+ CMAKE_MAKE_PROGRAM               /usr/bin/gmake
+ CMAKE_MODULE_LINKER_FLAGS        -L/softs/openmpi/intel-21U2/4.1.1-ucx-1.10.1/lib:-L/softs/ucx/1.10.1/lib
+ CMAKE_MODULE_LINKER_FLAGS_DEBU   
+ CMAKE_MODULE_LINKER_FLAGS_MINS   
+ CMAKE_MODULE_LINKER_FLAGS_RELE   
+ CMAKE_MODULE_LINKER_FLAGS_RELW   
+ CMAKE_NM                         /usr/bin/nm
+ CMAKE_OBJCOPY                    /usr/bin/objcopy
+ CMAKE_OBJDUMP                    /usr/bin/objdump
+ CMAKE_RANLIB                     /usr/bin/ranlib
+ CMAKE_READELF                    /usr/bin/readelf
+ 
+                                                     Page 2 of 2
+                                                     
+ CMAKE_SHARED_LINKER_FLAGS        -L/softs/openmpi/intel-21U2/4.1.1-ucx-1.10.1/lib:-L/softs/ucx/1.10.1/lib
+ CMAKE_SHARED_LINKER_FLAGS_DEBU   
+ CMAKE_SHARED_LINKER_FLAGS_MINS   
+ CMAKE_SHARED_LINKER_FLAGS_RELE   
+ CMAKE_SHARED_LINKER_FLAGS_RELW   
+ CMAKE_SKIP_INSTALL_RPATH         OFF
+ CMAKE_SKIP_RPATH                 OFF
+ CMAKE_STATIC_LINKER_FLAGS
+ CMAKE_STATIC_LINKER_FLAGS_DEBU   
+ CMAKE_STATIC_LINKER_FLAGS_MINS   
+ CMAKE_STATIC_LINKER_FLAGS_RELE   
+ CMAKE_STATIC_LINKER_FLAGS_RELW   
+ CMAKE_STRIP                      /usr/bin/strip
+ CMAKE_TAPI                       CMAKE_TAPI-NOTFOUND
+ CMAKE_VERBOSE_MAKEFILE           OFF
+ ENABLE_COMPLEX_SOLVER            OFF
+ ENABLE_CUDA                      OFF
+ ENABLE_MPI                       OFF
+ ENABLE_PETSC                     OFF
+ XIAR                             /gpfs/softs/intel/oneapi/compiler/2021.2.0/linux/bin/intel64/xiar
+

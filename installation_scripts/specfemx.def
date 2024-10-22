@@ -1,0 +1,38 @@
+BootStrap: docker
+From: ubuntu:22.04
+
+%files
+cmake-3.23.1.tar.gz
+openmpi-4.0.2.tar.bz2
+scotch-v7.0.4.tar.bz2
+SPECFEMX_new
+
+%post
+export http_proxy=http://gwebproxy.univ-paris-diderot.fr:3128
+export https_proxy=http://gwebproxy.univ-paris-diderot.fr:3128
+    
+%environment
+     
+    # Open MPI
+    export OMPI_DIR=/usr/soft/openmpi-4.0.2/openmpi-install
+    export PATH=$OMPI_DIR/bin:$PATH
+    export LD_LIBRARY_PATH=$OMPI_DIR/lib:$LD_LIBRARY_PATH
+    export SINGULARITYENV_APPEND_PATH=$OMPI_DIR/bin
+    export SINGULARITYENV_APPEND_LD_LIBRARY_PATH=$OMPI_DIR/lib
+    
+    # Scotch
+    export SCOTCH_DIR=/usr/soft/scotch-v7.0.4/scotch-install
+    export PATH=$SCOTCH_DIR/bin:$PATH
+    export LD_LIBRARY_PATH=$SCOTCH_DIR/lib:$LD_LIBRARY_PATH
+    export SINGULARITYENV_APPEND_PATH=$SCOTCH_DIR/bin
+    export SINGULARITYENV_APPEND_LD_LIBRARY_PATH=$SCOTCH_DIR/lib
+    
+    # PETSc. 
+    export PETSC_DIR=/usr/soft/petsc
+    export PETSC_ARCH=arch-linux-c-debug
+    export PATH=$PETSC_DIR/bin:$PATH
+    export LD_LIBRARY_PATH=$PETSC_DIR/lib:$LD_LIBRARY_PATH
+    export SINGULARITYENV_APPEND_PATH=$PETSC_DIR/bin
+    export SINGULARITYENV_APPEND_LD_LIBRARY_PATH=$PETSC_DIR/lib
+      
+mkdir -p /usr/soft

@@ -1,0 +1,70 @@
+
+###  Add path of mpich manually ########"
+
+cmake -DCMAKE_INSTALL_PREFIX=/home/rajesh/SCOTCH/scotch-v7.0.4/scotch-install -DCMAKE_BUILD_TYPE=Release -DMPI_C_COMPILER=/home/rajesh/MPICH/mpich-4.2.0/mpich-install/bin/mpicc -DMPI_CXX_COMPILER=/home/rajesh/MPICH/mpich-4.2.0/mpich-install/bin/mpicxx  -DMPI_C_INCLUDE_PATH=/home/rajesh/MPICH/mpich-4.2.0/mpich-install/include -DMPIEXEC_EXECUTABLE=/home/rajesh/MPICH/mpich-4.2.0/mpich-install/bin/mpiexec
+
+
+#### with openmpi
+cmake -DCMAKE_INSTALL_PREFIX=/home/rajesh/SCOTCH/scotch-v7.0.4/scotch-install -DCMAKE_BUILD_TYPE=Release -DMPI_C_COMPILER=/home/rajesh/OPENMPI/openmpi-5.0.2/openmpi-install/bin/mpicc -DMPI_CXX_COMPILER=/home/rajesh/OPENMPI/openmpi-5.0.2/openmpi-install/bin/mpicxx  -DMPI_C_INCLUDE_PATH=/home/rajesh/OPENMPI/openmpi-5.0.2/openmpi-install/include -DMPIEXEC_EXECUTABLE=/home/rajesh/OPENMPI/openmpi-5.0.2/openmpi-install/bin/mpiexec
+
+cmake -DCMAKE_INSTALL_PREFIX=/usr/soft/scotch-v7.0.4/scotch-install \
+      -DCMAKE_BUILD_TYPE=Release \
+      -DMPI_C_COMPILER=/usr/soft/openmpi-4.0.2/openmpi-install/bin/mpicc \
+      -DMPI_CXX_COMPILER=/usr/soft/openmpi-4.0.2/openmpi-install/bin/mpicxx \
+      -DMPI_C_INCLUDE_PATH=/usr/soft/openmpi-4.0.2/openmpi-install/include \
+      -DMPIEXEC_EXECUTABLE=/usr/soft/openmpi-4.0.2/openmpi-install/bin/mpiexec \
+      .
+
+###  error got in installing scotch _  ########"
+-- The C compiler identification is GNU 9.4.0
+-- The CXX compiler identification is GNU 9.4.0
+-- Check for working C compiler: /usr/bin/cc
+-- Check for working C compiler: /usr/bin/cc -- works
+-- Detecting C compiler ABI info
+-- Detecting C compiler ABI info - done
+-- Detecting C compile features
+-- Detecting C compile features - done
+-- Check for working CXX compiler: /usr/bin/c++
+-- Check for working CXX compiler: /usr/bin/c++ -- works
+-- Detecting CXX compiler ABI info
+-- Detecting CXX compiler ABI info - done
+-- Detecting CXX compile features
+-- Detecting CXX compile features - done
+-- The Fortran compiler identification is GNU 9.4.0
+-- Check for working Fortran compiler: /usr/bin/gfortran
+-- Check for working Fortran compiler: /usr/bin/gfortran  -- works
+-- Detecting Fortran compiler ABI info
+-- Detecting Fortran compiler ABI info - done
+-- Checking whether /usr/bin/gfortran supports Fortran 90
+-- Checking whether /usr/bin/gfortran supports Fortran 90 -- yes
+-- Found BISON: /usr/bin/bison (found version "3.5.1") 
+-- Bison found here: /usr/bin/bison
+-- Found FLEX: /usr/bin/flex (found version "2.6.4") 
+-- Flex found here: /usr/bin/flex
+-- Looking for pthread.h
+-- Looking for pthread.h - found
+-- Performing Test CMAKE_HAVE_LIBC_PTHREAD
+-- Performing Test CMAKE_HAVE_LIBC_PTHREAD - Failed
+-- Looking for pthread_create in pthreads
+-- Looking for pthread_create in pthreads - not found
+-- Looking for pthread_create in pthread
+-- Looking for pthread_create in pthread - found
+-- Found Threads: TRUE  
+-- Looking for pthread_setaffinity_np
+-- Looking for pthread_setaffinity_np - found
+-- Found ZLIB: /usr/lib/x86_64-linux-gnu/libz.so (found version "1.2.11") 
+-- Could NOT find BZip2 (missing: BZIP2_LIBRARIES BZIP2_INCLUDE_DIR) 
+-- Looking for lzma_auto_decoder in /usr/lib/x86_64-linux-gnu/liblzma.so
+-- Looking for lzma_auto_decoder in /usr/lib/x86_64-linux-gnu/liblzma.so - found
+-- Looking for lzma_easy_encoder in /usr/lib/x86_64-linux-gnu/liblzma.so
+-- Looking for lzma_easy_encoder in /usr/lib/x86_64-linux-gnu/liblzma.so - found
+-- Looking for lzma_lzma_preset in /usr/lib/x86_64-linux-gnu/liblzma.so
+-- Looking for lzma_lzma_preset in /usr/lib/x86_64-linux-gnu/liblzma.so - found
+-- Found LibLZMA: /usr/lib/x86_64-linux-gnu/liblzma.so (found version "5.2.4") 
+-- Found MPI_C: /usr/local/MPICH/mpich-4.2.0/mpich-install/lib/libmpi.so (found version "4.1") 
+-- Found MPI: TRUE (found version "4.1") found components: C 
+-- MPI implementation DOES support MPI_THREAD_MULTIPLE
+-- Found UnixCommands: /bin/bash  
+-- Configuring done
+-- Generating done
+-- Build files have been written to: /home/rajesh/SCOTCH/scotch-v7.0.4

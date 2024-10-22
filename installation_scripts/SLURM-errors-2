@@ -1,0 +1,146 @@
+
+
+###################################################################################### 
+			             Simple MPI tests
+###################################################################################### 
+				sbatch submit_job.sh
+
+
+________________________________________ MPI test_____Outside singularity_________N4 n40___________ 1 
+#!/bin/bash
+#SBATCH --job-name=test_mpi
+#SBATCH --output=test_output_%j.out
+#SBATCH --error=test_error_%j.err
+#SBATCH --nodes=4
+#SBATCH --ntasks=40
+#SBATCH --ntasks-per-node=10
+#SBATCH --cpus-per-task=1
+#SBATCH --time=00:05:00
+#SBATCH --partition=ncpu
+
+# srun hostname
+module purge
+
+module list
+module load openmpi/gcc-10.3.0/4.1.1
+
+mpirun ./mpi_test
+-------------------------------------------------------------------------- * * * WORKING * * *
+
+
+
+________________________________________ MPI test_____Inside singularity_________N4 n40___________ 2 
+#!/bin/bash
+#SBATCH --job-name=test_mpi
+#SBATCH --output=test_output_%j.out
+#SBATCH --error=test_error_%j.err
+#SBATCH --nodes=4
+#SBATCH --ntasks=40
+#SBATCH --ntasks-per-node=10
+#SBATCH --cpus-per-task=1
+#SBATCH --time=00:05:00
+#SBATCH --partition=ncpu
+
+# srun hostname
+module purge
+
+module list
+module load openmpi/gcc-10.3.0/4.1.1
+
+mpirun singularity exec ../SPECFEMX_withenv_OMPI4.sif ./mpi_test
+-------------------------------------------------------------------------- * * * WORKING * * *
+
+
+
+
+
+
+###################################################################################### 
+			       SPECFEM-X example      Inclined_strike_slip tests
+###################################################################################### 
+					sbatch submit_job.sh
+					
+
+_____________________________________________Inside singularity_________N1 n32___________ 4 
+#!/bin/bash
+#SBATCH --job-name=test_mpi
+#SBATCH --output=OUT_%j.out
+#SBATCH --error=ERR_%j.err
+#SBATCH --nodes=1
+#SBATCH --ntasks=32
+#SBATCH --ntasks-per-node=32
+#SBATCH --cpus-per-task=1
+#SBATCH --time=00:15:00
+#SBATCH --partition=ncpu
+
+
+# Clean up and create directories
+rm -rf partition output tmp
+mkdir -p output partition tmp
+
+# Run the preprocessing step. Mesh partitioning
+singularity exec ../SPECFEMX_withenv_OMPI4.sif ./bin/partmesh input/inclined_strikeslip.psem
+
+# Load OMPI
+module purge
+module list
+module load openmpi/gcc-10.3.0/4.1.1
+
+mpirun singularity exec ../SPECFEMX_withenv_OMPI4.sif ./bin/pspecfemx input/inclined_strikeslip.psem
+-------------------------------------------------------------------------------------------------------------- * * * WORKING * * *
+-------------------------------------------------------------------------------------------------------------- * * * Rsults proper in ParaView * * *
+
+
+
+
+
+
+
+_____________________________________________Inside singularity_________N2 n24___________ 5 
+#!/bin/bash
+#SBATCH --job-name=test_mpi
+#SBATCH --output=OUT_%j.out
+#SBATCH --error=ERR_%j.err
+#SBATCH --nodes=2
+#SBATCH --ntasks=24
+#SBATCH --ntasks-per-node=12
+#SBATCH --cpus-per-task=1
+#SBATCH --time=00:15:00
+#SBATCH --partition=ncpu
+
+
+# Clean up and create directories
+rm -rf partition output tmp
+mkdir -p output partition tmp
+
+# Run the preprocessing step. Mesh partitioning
+singularity exec ../SPECFEMX_withenv_OMPI4.sif ./bin/partmesh input/inclined_strikeslip.psem
+
+# Load OMPI
+module purge
+module list
+module load openmpi/gcc-10.3.0/4.1.1
+
+mpirun singularity exec ../SPECFEMX_withenv_OMPI4.sif ./bin/pspecfemx input/inclined_strikeslip.psem
+
+------------------------------------------------------------------------------------------------------------------------------------ * * * ERROR * * *
+No Modulefiles Currently Loaded.
+[ncpu004][[18239,1],5][btl_tcp_endpoint.c:625:mca_btl_tcp_endpoint_recv_connect_ack] received unexpected process identifier [[18239,1],8]
+[ncpu004][[18239,1],9][btl_tcp_endpoint.c:625:mca_btl_tcp_endpoint_recv_connect_ack] received unexpected process identifier [[18239,1],8]
+--------------------------------------------------------------------------
+WARNING: Open MPI accepted a TCP connection from what appears to be a
+another Open MPI process but cannot find a corresponding process
+entry for that peer.
+
+This attempted connection will be ignored; your MPI job may or may not
+continue properly.
+
+  Local host: ncpu004
+  PID:        4169316
+--------------------------------------------------------------------------
+[ncpu004][[18239,1],7][btl_tcp_endpoint.c:625:mca_btl_tcp_endpoint_recv_connect_ack] received unexpected process identifier [[18239,1],11]
+
+
+
+
+

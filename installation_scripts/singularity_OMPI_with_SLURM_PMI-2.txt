@@ -1,0 +1,80 @@
+
+Bootstrap: docker
+From: ubuntu:20.04
+
+%help
+    This is a Singularity container for SLURM with PMI-2 support.
+
+%post
+    # Update package list and install dependencies
+    apt-get update && apt-get install -y \
+        build-essential \
+        wget \
+        libpmi-dev \
+        libpmi2-dev \
+        slurm-wlm \
+        libslurm-dev \
+        libhwloc-dev \
+        libnuma-dev \
+        software-properties-common \
+        curl
+
+    # Install SLURM
+    mkdir -p /usr/local/src/slurm
+    cd /usr/local/src/slurm
+
+    # Download SLURM
+    wget https://download.schedmd.com/slurm/slurm-22.05.8.tar.bz2
+    tar -xjf slurm-22.05.8.tar.bz2
+    cd slurm-22.05.8
+
+    # Configure SLURM with PMI-2 support
+    ./configure \
+        --prefix=/usr/local/slurm \
+        --with-pmi \
+        --with-hwloc=external
+
+    # Build and install SLURM
+    make -j$(nproc)
+    make install
+
+    # Set environment variables
+    echo "export PATH=/usr/local/slurm/bin:$PATH" >> /environment
+    echo "export LD_LIBRARY_PATH=/usr/local/slurm/lib:$LD_LIBRARY_PATH" >> /environment
+    echo "export SLURM_CONF=/usr/local/slurm/etc/slurm.conf" >> /environment
+
+%environment
+    # Environment settings for SLURM
+    export PATH=/usr/local/slurm/bin:$PATH
+    export LD_LIBRARY_PATH=/usr/local/slurm/lib:$LD_LIBRARY_PATH
+    export SLURM_CONF=/usr/local/slurm/etc/slurm.conf
+
+%runscript
+    exec "$@"
+
+
+
+
+
+========================================OpenMPI==========================================with SLURM
+
+cd /usr/soft
+tar -xvjf openmpi-4.0.2.tar.bz2
+cd openmpi-4.0.2 
+mkdir openmpi-install
+
+./configure  \
+    --prefix=/usr/soft/openmpi-4.0.2/openmpi-install \
+    --enable-orterun-prefix-by-default \
+    --enable-mpirun-prefix-by-default \
+    --enable-static \
+    --enable-shared \
+    --disable-oshmem \
+    --disable-io-ompio \
+    --disable-verbs-sshmem \
+    --with-verbs \
+    --with-pmi \
+    --with-hwloc=external
+
+make all 2>&1 | tee make.out
+make install 2>&1 | tee install.out

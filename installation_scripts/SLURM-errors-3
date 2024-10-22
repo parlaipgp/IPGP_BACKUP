@@ -1,0 +1,293 @@
+
+__________________________________________________________________Inside singularity________N1 n12___________with srun____single Node
+#!/bin/bash
+#SBATCH --job-name=test_mpi
+#SBATCH --output=test_output_%j.out
+#SBATCH --error=test_error_%j.err
+#SBATCH --nodes=1
+#SBATCH --ntasks=12
+#SBATCH --ntasks-per-node=12
+#SBATCH --cpus-per-task=1
+#SBATCH --time=00:15:00
+#SBATCH --partition=ncpushort
+
+
+# Clean up and create directories
+rm -rf partition output tmp
+mkdir -p output partition tmp
+
+# Run the preprocessing step. Mesh partitioning
+singularity exec ../SPECFEMX+SLURM.sif ./bin/partmesh input/inclined_strikeslip.psem
+
+# Load OMPI
+module purge
+module list
+module load openmpi/gcc-10.3.0/4.1.1
+
+
+srun -N1 -n12 --mpi=pmi2 --cpu-bind=v,rank singularity exec --bind /usr/bin/srun:/usr/bin/srun \
+                  --bind /usr/lib64/slurm:/usr/lib64/slurm \
+                  --bind /etc/slurm:/etc/slurm \
+                  ../SPECFEMX+SLURM.sif \
+                  ./bin/pspecfemx input/inclined_strikeslip.psem
+
+-------------------------------------------------------------------------------------------------------------- * * * WORKING with ERROR * * *
+-------------------------------------------------------------------------------------------------------------- * * * Rsults proper in ParaView * * *
+--------------------------------------------------------------------------
+WARNING: No preset parameters were found for the device that Open MPI
+detected:
+
+  Local host:            ncpu002
+  Device name:           mlx5_0
+  Device vendor ID:      0x02c9
+  Device vendor part ID: 4123
+
+Default device parameters will be used, which may result in lower
+performance.  You can edit any of the files specified by the
+btl_openib_device_param_files MCA parameter to set values for your
+device.
+
+NOTE: You can turn off this warning by setting the MCA parameter
+      btl_openib_warn_no_device_params_found to 0.
+--------------------------------------------------------------------------
+--------------------------------------------------------------------------
+By default, for Open MPI 4.0 and later, infiniband ports on a device
+are not used by default.  The intent is to use UCX for these devices.
+You can override this policy by setting the btl_openib_allow_ib MCA parameter
+to true.
+
+  Local host:              ncpu002
+  Local adapter:           mlx5_0
+  Local port:              1
+
+--------------------------------------------------------------------------
+--------------------------------------------------------------------------
+WARNING: There was an error initializing an OpenFabrics device.
+
+  Local host:   ncpu002
+  Local device: mlx5_0
+--------------------------------------------------------------------------
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+__________________________________________________________________Inside singularity________N2 n12___________with srun______2 Nodes
+#!/bin/bash
+#SBATCH --job-name=test_mpi
+#SBATCH --output=test_output_%j.out
+#SBATCH --error=test_error_%j.err
+#SBATCH --nodes=2
+#SBATCH --ntasks=12
+#SBATCH --ntasks-per-node=6
+#SBATCH --cpus-per-task=1
+#SBATCH --time=00:15:00
+#SBATCH --partition=ncpushort
+
+
+# Clean up and create directories
+rm -rf partition output tmp
+mkdir -p output partition tmp
+
+# Run the preprocessing step. Mesh partitioning
+singularity exec ../SPECFEMX+SLURM.sif ./bin/partmesh input/inclined_strikeslip.psem
+
+# Load OMPI
+module purge
+module list
+module load openmpi/gcc-10.3.0/4.1.1
+
+
+srun -N2 -n12 --mpi=pmi2 --cpu-bind=v,rank singularity exec --bind /usr/bin/srun:/usr/bin/srun \
+                  --bind /usr/lib64/slurm:/usr/lib64/slurm \
+                  --bind /etc/slurm:/etc/slurm \
+                  ../SPECFEMX+SLURM.sif \
+                  ./bin/pspecfemx input/inclined_strikeslip.psem
+                  
+-------------------------------------------------------------------------------------------------------------- * * * Job hung. No outputs * * *                  
+-------------------------------------------------------------------------------------------------------------- * * * ERROR * * *                  
+--------------------------------------------------------------------------
+WARNING: No preset parameters were found for the device that Open MPI
+detected:
+
+  Local host:            ncpu015
+  Device name:           mlx5_0
+  Device vendor ID:      0x02c9
+  Device vendor part ID: 4123
+
+Default device parameters will be used, which may result in lower
+performance.  You can edit any of the files specified by the
+btl_openib_device_param_files MCA parameter to set values for your
+device.
+
+NOTE: You can turn off this warning by setting the MCA parameter
+      btl_openib_warn_no_device_params_found to 0.
+--------------------------------------------------------------------------
+--------------------------------------------------------------------------
+By default, for Open MPI 4.0 and later, infiniband ports on a device
+are not used by default.  The intent is to use UCX for these devices.
+You can override this policy by setting the btl_openib_allow_ib MCA parameter
+to true.
+
+  Local host:              ncpu015
+  Local adapter:           mlx5_0
+  Local port:              1
+
+--------------------------------------------------------------------------
+--------------------------------------------------------------------------
+WARNING: There was an error initializing an OpenFabrics device.
+
+  Local host:   ncpu015
+  Local device: mlx5_0
+--------------------------------------------------------------------------
+[ncpu002][[42967,0],5][btl_tcp_endpoint.c:625:mca_btl_tcp_endpoint_recv_connect_ack] received unexpected process identifier [[42967,0],4]
+[ncpu002][[42967,0],3][btl_tcp_endpoint.c:625:mca_btl_tcp_endpoint_recv_connect_ack] received unexpected process identifier [[42967,0],4]
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+__________________________________________________________________Inside singularity________N2 n12___________with srun______2 Nodes
+#!/bin/bash
+#SBATCH --job-name=test_mpi
+#SBATCH --output=test_output_%j.out
+#SBATCH --error=test_error_%j.err
+#SBATCH --nodes=2
+#SBATCH --ntasks=12
+#SBATCH --ntasks-per-node=6
+#SBATCH --cpus-per-task=1
+#SBATCH --time=00:15:00
+#SBATCH --partition=ncpushort
+
+
+# Clean up and create directories
+rm -rf partition output tmp
+mkdir -p output partition tmp
+
+# Run the preprocessing step. Mesh partitioning
+singularity exec ../SPECFEMX+SLURM_OMPI4.sif ./bin/partmesh input/inclined_strikeslip.psem
+
+# Load OMPI
+module purge
+module list
+module load openmpi/gcc-10.3.0/4.1.1
+module load cmake/3.29.1
+
+srun -N2 -n12 --mpi=pmi2 --cpu-bind=v,rank singularity exec --bind /usr/bin/srun:/usr/bin/srun \
+                  --bind /usr/lib64/slurm:/usr/lib64/slurm \
+                  --bind /etc/slurm:/etc/slurm \
+                  --bind /dev/infiniband \
+                  --bind /usr/lib64/libibverbs.so.1 \
+                  ../SPECFEMX+SLURM_OMPI4.sif \
+                  ./bin/pspecfemx input/inclined_strikeslip.psem
+                  
+                  
+-------------------------------------------------------------------------------------------------------------- * * * Job hung. No outputs * * *                  
+-------------------------------------------------------------------------------------------------------------- * * * ERROR * * * 
+No Modulefiles Currently Loaded.
+[ncpu038][[43199,0],7][btl_tcp_endpoint.c:625:mca_btl_tcp_endpoint_recv_connect_ack] received unexpected process identifier [[43199,0],8]
+--------------------------------------------------------------------------
+WARNING: Open MPI accepted a TCP connection from what appears to be a
+another Open MPI process but cannot find a corresponding process
+entry for that peer.
+
+This attempted connection will be ignored; your MPI job may or may not
+continue properly.
+
+  Local host: ncpu002
+  PID:        3829100
+--------------------------------------------------------------------------
+[ncpu002][[43199,0],5][btl_tcp_endpoint.c:625:mca_btl_tcp_endpoint_recv_connect_ack] received unexpected process identifier [[43199,0],3]
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+__________________________________________________________________Inside singularity________N2 n12___________with srun______2 Nodes
+#!/bin/bash
+#SBATCH --job-name=test_mpi
+#SBATCH --output=test_output_%j.out
+#SBATCH --error=test_error_%j.err
+#SBATCH --nodes=2
+#SBATCH --ntasks=12
+#SBATCH --ntasks-per-node=6
+#SBATCH --cpus-per-task=1
+#SBATCH --time=00:15:00
+#SBATCH --partition=ncpushort
+
+
+# Clean up and create directories
+rm -rf partition output tmp
+mkdir -p output partition tmp
+
+# Run the preprocessing step. Mesh partitioning
+singularity exec ../SPECFEMX+SLURM_OMPI4.sif ./bin/partmesh input/inclined_strikeslip.psem
+
+# Load OMPI
+module purge
+module list
+module load openmpi/gcc-10.3.0/4.1.1
+module load cmake/3.29.1
+
+srun -N2 -n12 --mpi=pmi2 --cpu-bind=v,rank singularity exec --bind /usr/bin/srun:/usr/bin/srun \
+                  --bind /usr/lib64/slurm:/usr/lib64/slurm \
+                  --bind /etc/slurm:/etc/slurm \
+                  --bind /dev/infiniband \
+                  --bind /usr/lib64/libibverbs.so.1 \
+                  --bind /softs/openmpi/gcc-10.3.0/4.1.1/bin:/usr/soft/openmpi-4.1.1/openmpi-install/bin \
+                  --network=none \
+                  ../SPECFEMX+SLURM_OMPI4.sif \
+                  ./bin/pspecfemx input/inclined_strikeslip.psem
+                  
+-------------------------------------------------------------------------------------------------------------- * * * Job hung. No outputs * * *                  
+-------------------------------------------------------------------------------------------------------------- * * * ERROR * * *                   
+[ncpu015][[43275,0],7][btl_tcp_endpoint.c:625:mca_btl_tcp_endpoint_recv_connect_ack] received unexpected process identifier [[43275,0],8]
+[ncpu011][[43275,0],3][btl_tcp_endpoint.c:625:mca_btl_tcp_endpoint_recv_connect_ack] received unexpected process identifier [[43275,0],0]
+[ncpu011][[43275,0],5][btl_tcp_endpoint.c:625:mca_btl_tcp_endpoint_recv_connect_ack] received unexpected process identifier [[43275,0],0]
+
+
+                  
+                  
+                  
+                  
+

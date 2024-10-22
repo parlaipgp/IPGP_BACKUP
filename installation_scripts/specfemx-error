@@ -1,0 +1,46 @@
+CMake Warning at CMakeLists.txt:113 (MESSAGE):
+   MPI Fortran compiler: /usr/local/MPICH/mpich-4.2.0/mpich-install/bin/mpif90
+   doesn't work! Parallel semgeotech cannot be built! Change Dir:
+   /home/rajesh/SPECFEM-X/specfemx-install/CMakeTmp/CMakeFiles/CMakeTmp
+
+
+
+   Run Build Command(s):/usr/bin/make cmTC_54c2f/fast && /usr/bin/make -f
+   CMakeFiles/cmTC_54c2f.dir/build.make CMakeFiles/cmTC_54c2f.dir/build
+
+   make[1]: Entering directory
+   '/home/rajesh/SPECFEM-X/specfemx-install/CMakeTmp/CMakeFiles/CMakeTmp'
+
+   Building Fortran object CMakeFiles/cmTC_54c2f.dir/testmpi.f90.o
+
+   /usr/bin/f95 -c /home/rajesh/SPECFEM-X/src/testmpi.f90 -o
+   CMakeFiles/cmTC_54c2f.dir/testmpi.f90.o
+
+   /home/rajesh/SPECFEM-X/src/testmpi.f90:3:4:
+
+
+
+       3 | use mpi
+         |    1
+
+   Fatal Error: Cannot open module file mpi.mod for reading at (1): No
+   such file or directory
+
+   compilation terminated.
+
+   make[1]: *** [CMakeFiles/cmTC_54c2f.dir/build.make:66:
+   CMakeFiles/cmTC_54c2f.dir/testmpi.f90.o] Error 1
+
+   make[1]: Leaving directory
+   '/home/rajesh/SPECFEM-X/specfemx-install/CMakeTmp/CMakeFiles/CMakeTmp'
+
+   make: *** [Makefile:121: cmTC_54c2f/fast] Error 2
+
+
+
+
+
+
+ CMake Warning at CMakeLists.txt:131 (MESSAGE):                                    *****
+   Please set correct PETSC_DIR environement variable to use PETSc!  ------        *****
+

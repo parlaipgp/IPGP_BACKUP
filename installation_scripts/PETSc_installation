@@ -1,0 +1,17 @@
+
+## dowload PETSc
+
+wget https://web.cels.anl.gov/projects/petsc/download/release-snapshots/petsc-3.20.4.tar.gz
+
+## unzip and save at suitable location for installation
+
+## add paths to .bashrc
+
+export PETSC_DIR=/home/rajesh/PETSC/petsc-3.16.4
+export PETSC_ARCH=arch-linux2-c-debug
+
+## use this command to install PETSc
+./configure --download-fblaslapack --with-cc=mpicc --with-cxx=mpic++ --with-fc=mpif90 --with-mpiexec=mpiexec --download-hwloc --download-scalapack --download-mumps --download-superlu --download-superlu_dist --download-metis --download-parmetis --download-ptscotch --download-hypre# cmake --version
+
+
+## follow the commands that comes afterwards

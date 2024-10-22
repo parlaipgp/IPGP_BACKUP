@@ -1,0 +1,211 @@
+
+# Make definition file with minimal info.
+# Required "openMPI, SCOTCH, SPECFEMX-freq, etc" needs to be in the same directory to get copied into container
+
+===============================save the script as 'specfemx.def'============================
+------------------------------------Start---------------------------------------------------
+Bootstrap: docker
+From: ubuntu:20.04
+
+%files
+cmake-3.23.1.tar.gz
+openmpi-4.0.2.tar.bz2
+scotch-v7.0.4.tar.bz2
+SPECFEMX-freq.zip
+
+
+# Make sure all the paths are correct
+
+%environment
+    # Open MPI
+    export OMPI_DIR=/usr/soft/openmpi-4.0.2/openmpi-install
+    export PATH=$OMPI_DIR/bin:$PATH
+    export LD_LIBRARY_PATH=$OMPI_DIR/lib:$LD_LIBRARY_PATH
+    export SINGULARITYENV_APPEND_PATH=$OMPI_DIR/bin
+    export SINGULARITYENV_APPEND_LD_LIBRARY_PATH=$OMPI_DIR/lib
+    
+    # Scotch
+    export SCOTCH_DIR=/usr/soft/scotch-v7.0.4/scotch-install
+    export PATH=$SCOTCH_DIR/bin:$PATH
+    export LD_LIBRARY_PATH=$SCOTCH_DIR/lib:$LD_LIBRARY_PATH
+    export SINGULARITYENV_APPEND_PATH=$SCOTCH_DIR/bin
+    export SINGULARITYENV_APPEND_LD_LIBRARY_PATH=$SCOTCH_DIR/lib
+    
+    # PETSc. install only in '* * * petsc * * *' directory any version
+    export PETSC_DIR=/usr/soft/petsc
+    export PETSC_ARCH=arch-linux2-c-debug
+    export PATH=$PETSC_DIR/bin:$PATH
+    export LD_LIBRARY_PATH=$PETSC_DIR/lib:$LD_LIBRARY_PATH
+    export SINGULARITYENV_APPEND_PATH=$PETSC_DIR/bin
+    export SINGULARITYENV_APPEND_LD_LIBRARY_PATH=$PETSC_DIR/lib
+
+
+%post
+# Basic utilities and dependencies
+apt-get update
+apt-get upgrade
+
+# Create the installation directory
+mkdir -p /usr/soft
+------------------------------------End---------------------------------------------------
+
+
+# Run the command to build container with Sandbox for Writable & Modifications. **Singularity image by default is Read Only file**.
+# Use fake root to connect to Docker. 
+
+singularity build --sandbox --fakeroot SPECFEMX_sandbox_withevn_OMPI4 specfemx.def
+
+
+===========================================================================================
+
+
+=======================Manually install dependencies interactivly==========================
+
+# Use sudo for permissions 
+
+sudo singularity shell --writable SPECFEMX_sandbox_withevn_OMPI4
+
+========================================proxy=========================================
+# Set proxy inside container. Needed for git clone 
+
+export http_proxy=http://gwebproxy.univ-paris-diderot.fr:3128
+export https_proxy=http://gwebproxy.univ-paris-diderot.fr:3128
+
+
+# Need to install all basic packages like in new system. install one-by-one
+
+apt-get -y install gfortran flex bison python3 git unzip gedit vim g++ make libssl-dev zlib1g-dev wget
+
+=========================================================================================
+# Go to root (cd /)  and move files to /soft (created in .def file)
+
+cd /
+mv cmake-3.23.1.tar.gz openmpi-4.0.2.tar.bz2 scotch-v7.0.4.tar.bz2 SPECFEMX-freq.zip /usr/soft
+
+
+========================================CCMAKE===========================================
+cd /usr/soft
+apt install libncurses5-dev
+tar -xzf cmake-3.23.1.tar.gz
+cd cmake-3.23.1
+./bootstrap
+make -j
+make install
+
+========================================OpenMPI==========================================
+#  https://docs.open-mpi.org/
+#  Needs to add paths to bashrc, but source bashrc having issue. So if close the contained and reopening again needs to run PATH= command
+cd /usr/soft
+tar -xvjf openmpi-4.0.2.tar.bz2
+cd openmpi-4.0.2 
+mkdir openmpi-install
+./configure --prefix=/usr/soft/openmpi-4.0.2/openmpi-install 2>&1 | tee config.out
+make all 2>&1 | tee make.out
+make install 2>&1 | tee install.out
+
+# Add paths to .bashrc
+
+PATH=$PATH:/usr/soft/openmpi-4.0.2/openmpi-install/bin
+export OMPI_ALLOW_RUN_AS_ROOT=1
+export OMPI_ALLOW_RUN_AS_ROOT_CONFIRM=1  
+
+
+
+========================================SCOTCH========================================
+cd /usr/soft
+tar -xvjf scotch-v7.0.4.tar.bz2
+cd scotch-v7.0.4
+
+mkdir scotch-install
+
+cmake -DCMAKE_INSTALL_PREFIX=/usr/soft/scotch-v7.0.4/scotch-install \
+      -DCMAKE_BUILD_TYPE=Release \
+      -DMPI_C_COMPILER=/usr/soft/openmpi-4.0.2/openmpi-install/bin/mpicc \
+      -DMPI_CXX_COMPILER=/usr/soft/openmpi-4.0.2/openmpi-install/bin/mpicxx \
+      -DMPI_C_INCLUDE_PATH=/usr/soft/openmpi-4.0.2/openmpi-install/include \
+      -DMPIEXEC_EXECUTABLE=/usr/soft/openmpi-4.0.2/openmpi-install/bin/mpiexec \
+      .
+
+
+make -j
+
+# Set the following environment variables to allow running as root: for ctest
+
+export OMPI_ALLOW_RUN_AS_ROOT=1
+export OMPI_ALLOW_RUN_AS_ROOT_CONFIRM=1
+
+ctest
+make install
+
+PATH=$PATH:/usr/soft/scotch-v7.0.4/scotch-install/bin
+export SCOTCH_LIBRARY_PATH=/usr/soft/scotch-v7.0.4/scotch-install/lib
+export SCOTCH_INCLUDE_PATH=/usr/soft/scotch-v7.0.4/scotch-install/include
+
+
+========================================Petsc========================================
+
+# https://petsc.org/release/install/download/
+# if not able to download inside container, then exit, download in outside, and then copy to container (cp petsc.tar SPECFEMX.simg/usr/soft)
+
+cd /usr/soft
+wget https://web.cels.anl.gov/projects/petsc/download/release-snapshots/petsc-3.20.4.tar.gz
+tar -xzf petsc-3.20.4.tar.gz
+cd petsc-3.20.4
+mkdir petsc-install
+
+export PETSC_DIR=/usr/soft/petsc-3.20.4
+export PETSC_ARCH=arch-linux2-c-debug
+
+./configure --prefix=/usr/soft/petsc-3.20.4/petsc-install --download-fblaslapack --with-cc=mpicc --with-cxx=mpic++ --with-fc=mpif90 --with-mpiexec=mpiexec --download-hwloc --download-scalapack --download-mumps --download-superlu --download-superlu_dist --download-metis --download-parmetis --download-ptscotch --download-hypre
+
+>>> Follow the commands that comes afterwards
+
+
+export PETSC_DIR=/usr/soft/petsc-3.20.4/petsc-install
+export PATH=$PETSC_DIR/bin:$PATH
+export LD_LIBRARY_PATH=$PETSC_DIR/lib:$LD_LIBRARY_PATH
+
+========================================SPECFEMX=======================================
+
+cd /usr/soft
+unzip SPECFEMX-freq.zip
+cd /usr/soft/SPECFEMX-freq
+mkdir specfemx-install
+cd specfemx-install
+ccmake /usr/soft/SPECFEMX-freq
+
+	• opens interactable window, follow SPECFEMX manual to on/off flags
+	• go to advance options (press t)
+	• change “CMAKE_Fortran_COMPILER” from “/usr/bin/f95” to “mpif90”
+	• add paths of SCOTCH include and lib directories
+	• configure (press c)
+	• generate (press g)
+	
+make -j 8
+
+==================Set environmental variable in bashrc (inside container) =============
+# If added paths not appearing in singularity after copying into cluster, edit again on cluster
+
+
+## ---------------------OpenMPI---------------------------------
+export PATH=$PATH:/usr/soft/openmpi-4.0.2/openmpi-install/bin
+export OMPI_ALLOW_RUN_AS_ROOT=1
+export OMPI_ALLOW_RUN_AS_ROOT_CONFIRM=1 
+export LD_LIBRARY_PATH=/usr/soft/openmpi-4.0.2/openmpi-install/lib:$LD_LIBRARY_PATH
+export LD_INCLUDE_PATH=/usr/soft/openmpi-4.0.2/openmpi-install/include:$LD_INCLUDE_PATH
+
+## --------------------SCOTCH---------------------------------
+export PATH=$PATH:/usr/soft/scotch-v7.0.4/scotch-install/bin
+export LD_LIBRARY_PATH=/usr/soft/scotch-v7.0.4/scotch-install/lib:$LD_LIBRARY_PATH
+export LD_INCLUDE_PATH=/usr/soft/scotch-v7.0.4/scotch-install/include:$LD_INCLUDE_PATH
+
+
+## ---------------------PETSc---------------------------------
+export PETSC_DIR=/usr/soft/petsc-3.20.4/petsc-install
+export PETSC_ARCH=arch-linux2-c-debug
+
+=============== Final image from sandbox======(.sif / .simg / .img)====================
+
+sudo singularity build SPECFEMX_withenv_OMPI4.sif SPECFEMX_sandbox_withenv_OMPI4
+
+

@@ -1,0 +1,91 @@
+#!/bin/csh
+
+# Hard-coded bounds (adjust these values as needed)
+set min_lon = 108.0
+set max_lon = 130.0
+set min_lat = 13.0
+set max_lat = 14.5
+
+# Step 1: Extract Latitude, Longitude, Ux, Uy, Uz, and Sxx from coseis.dat
+# Extract the required columns
+awk '{print $2, $1, $3}' coseis.dat > coseis_ux.dat
+awk '{print $2, $1, $4}' coseis.dat > coseis_uy.dat
+awk '{print $2, $1, $5}' coseis.dat > coseis_uz.dat
+
+awk '{print $2, $1, $6}' coseis.dat > coseis_sxx.dat
+awk '{print $2, $1, $7}' coseis.dat > coseis_syy.dat
+awk '{print $2, $1, $8}' coseis.dat > coseis_szz.dat
+awk '{print $2, $1, $9}' coseis.dat > coseis_sxy.dat
+awk '{print $2, $1, $10}' coseis.dat > coseis_syz.dat
+awk '{print $2, $1, $11}' coseis.dat > coseis_szx.dat
+
+awk '{print $2, $1, $12}' coseis.dat > coseis_tx.dat
+awk '{print $2, $1, $13}' coseis.dat > coseis_ty.dat
+awk '{print $2, $1, $14}' coseis.dat > coseis_rot.dat
+
+awk '{print $2, $1, $15}' coseis.dat > coseis_gd.dat
+awk '{print $2, $1, $16}' coseis.dat > coseis_gr.dat
+
+# Step 2: Generate the grids with GMT
+gmt surface coseis_ux.dat -R$min_lon/$max_lon/$min_lat/$max_lat -I0.2 -Ggrid_ux.nc
+gmt surface coseis_uy.dat -R$min_lon/$max_lon/$min_lat/$max_lat -I0.2 -Ggrid_uy.nc
+gmt surface coseis_uz.dat -R$min_lon/$max_lon/$min_lat/$max_lat -I0.2 -Ggrid_uz.nc
+
+gmt surface coseis_sxx.dat -R$min_lon/$max_lon/$min_lat/$max_lat -I0.2 -Ggrid_sxx.nc
+gmt surface coseis_syy.dat -R$min_lon/$max_lon/$min_lat/$max_lat -I0.2 -Ggrid_syy.nc
+gmt surface coseis_szz.dat -R$min_lon/$max_lon/$min_lat/$max_lat -I0.2 -Ggrid_szz.nc
+gmt surface coseis_sxy.dat -R$min_lon/$max_lon/$min_lat/$max_lat -I0.2 -Ggrid_sxy.nc
+gmt surface coseis_syz.dat -R$min_lon/$max_lon/$min_lat/$max_lat -I0.2 -Ggrid_syz.nc
+gmt surface coseis_szx.dat -R$min_lon/$max_lon/$min_lat/$max_lat -I0.2 -Ggrid_szx.nc
+
+gmt surface coseis_tx.dat -R$min_lon/$max_lon/$min_lat/$max_lat -I0.2 -Ggrid_tx.nc
+gmt surface coseis_ty.dat -R$min_lon/$max_lon/$min_lat/$max_lat -I0.2 -Ggrid_ty.nc
+gmt surface coseis_rot.dat -R$min_lon/$max_lon/$min_lat/$max_lat -I0.2 -Ggrid_rot.nc
+
+gmt surface coseis_gd.dat -R$min_lon/$max_lon/$min_lat/$max_lat -I0.2 -Ggrid_gd.nc
+gmt surface coseis_gr.dat -R$min_lon/$max_lon/$min_lat/$max_lat -I0.2 -Ggrid_gr.nc
+
+# Step 3: Convert the grids to text format
+# Extract grids as xyz files
+gmt grd2xyz grid_ux.nc > ux.xyz
+gmt grd2xyz grid_uy.nc > uy.xyz
+gmt grd2xyz grid_uz.nc > uz.xyz
+
+gmt grd2xyz grid_sxx.nc > sxx.xyz
+gmt grd2xyz grid_syy.nc > syy.xyz
+gmt grd2xyz grid_szz.nc > szz.xyz
+gmt grd2xyz grid_sxy.nc > sxy.xyz
+gmt grd2xyz grid_syz.nc > syz.xyz
+gmt grd2xyz grid_szx.nc > szx.xyz
+
+gmt grd2xyz grid_tx.nc > tx.xyz
+gmt grd2xyz grid_ty.nc > ty.xyz
+gmt grd2xyz grid_rot.nc > rot.xyz
+
+gmt grd2xyz grid_gd.nc > gd.xyz
+gmt grd2xyz grid_gr.nc > gr.xyz
+
+
+#!/bin/csh
+
+# Define file names
+set file_ux = "ux.xyz"
+set file_uy = "uy.xyz"
+set output_file = "combined.dat"
+
+# Sort the files
+
+# Add the header to the output file
+echo "lon        lat        ux             uy" > $output_file
+
+# Combine the files using awk with formatted output and append to the output file
+awk 'FNR==NR {a[$1,$2]=$3; next} {printf "%-10s %-10s %-15s %-15s\n", $1, $2, a[$1,$2], $3}' $file_ux $file_uy >> $output_file
+
+echo "Files have been combined into $output_file with a header and aligned columns."
+
+
+# Clean up temporary files
+rm coseis_ux.dat coseis_uy.dat coseis_uz.dat coseis_sxx.dat coseis_syy.dat coseis_szz.dat coseis_sxy.dat coseis_syz.dat coseis_szx.dat
+rm coseis_tx.dat coseis_ty.dat coseis_rot.dat coseis_gd.dat coseis_gr.dat
+rm *.nc
+rm *.xyz

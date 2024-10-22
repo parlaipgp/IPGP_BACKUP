@@ -1,0 +1,142 @@
+
+
+
+singularity build --sandbox --fakeroot SPECFEMX_new specfemx.def
+
+sudo singularity shell --writable SPECFEMX_new
+
+=========================================================================================
+export http_proxy=http://gwebproxy.univ-paris-diderot.fr:3128
+export https_proxy=http://gwebproxy.univ-paris-diderot.fr:3128
+
+    # Update package lists
+    apt-get update
+
+    # Install necessary packages
+        apt-get update && apt-get install -y \
+        build-essential \
+        wget \
+        libssl-dev \
+        libpam0g-dev \
+        libmunge-dev \
+        libmunge2 \
+        munge \
+        zlib1g-dev \
+        libbz2-dev \
+        liblzma-dev \
+        libhwloc-dev \
+        vim \
+        curl \
+        git
+    
+    # Other installation if necessary
+    
+    apt-get install -y gfortran flex bison python3 unzip gedit g++ make libpmi2-0 libpmi2-0-dev build-essential libevent-dev autoconf libtool libibverbs-dev ibverbs-utils
+
+
+=========================================================================================
+# Go to root (cd /)  and move files to /soft (created in .def file)
+
+cd /
+
+mv cmake-3.23.1.tar.gz openmpi-4.0.2.tar.bz2 scotch-v7.0.4.tar.bz2 SPECFEMX_new slurm-22.05.2.tar.bz2 /usr/soft
+
+
+========================================CCMAKE===========================================
+cd /usr/soft
+apt install -y libncurses5-dev
+tar -xzf cmake-3.23.1.tar.gz
+cd cmake-3.23.1
+./bootstrap
+make -j
+make install
+
+cmake --version
+ccmake --version
+
+
+========================================OMPI======================================== 
+cd /usr/soft
+tar -xvjf openmpi-4.0.2.tar.bz2
+cd openmpi-4.0.2 
+mkdir openmpi-install
+./configure --prefix=/usr/soft/openmpi-4.0.2/openmpi-install 2>&1 | tee config.out
+make all -j 2>&1 | tee make.out
+make install 2>&1 | tee install.out
+
+# Add paths to .bashrc
+
+export PATH=$PATH:/usr/soft/openmpi-4.0.2/openmpi-install/bin
+export OMPI_LIBRARY_PATH=/usr/soft/openmpi-4.0.2/openmpi-install/lib
+export OMPI_INCLUDE_PATH=/usr/soft/openmpi-4.0.2/openmpi-install/include  
+
+
+
+========================================SCOTCH======================================== 
+cd /usr/soft
+tar -xvjf scotch-v7.0.4.tar.bz2
+cd scotch-v7.0.4
+
+mkdir scotch-install
+
+cmake -DCMAKE_INSTALL_PREFIX=/usr/soft/scotch-v7.0.4/scotch-install -DCMAKE_BUILD_TYPE=Release -DMPI_C_COMPILER=/usr/soft/openmpi-4.0.2/openmpi-install/bin/mpicc -DMPI_CXX_COMPILER=/usr/soft/openmpi-4.0.2/openmpi-install/bin/mpicxx -DMPI_C_INCLUDE_PATH=/usr/soft/openmpi-4.0.2/openmpi-install/include -DMPIEXEC_EXECUTABLE=/usr/soft/openmpi-4.0.2/openmpi-install/bin/mpiexec
+
+make -j
+
+export OMPI_ALLOW_RUN_AS_ROOT=1
+export OMPI_ALLOW_RUN_AS_ROOT_CONFIRM=1 
+
+ctest
+make install
+
+PATH=$PATH:/usr/soft/scotch-v7.0.4/scotch-install/bin
+export SCOTCH_LIBRARY_PATH=/usr/soft/scotch-v7.0.4/scotch-install/lib
+export SCOTCH_INCLUDE_PATH=/usr/soft/scotch-v7.0.4/scotch-install/include
+
+
+========================================Petsc========================================
+
+cd /usr/soft
+git clone -b release https://gitlab.com/petsc/petsc.git petsc
+cd petsc
+
+export PETSC_DIR=/usr/soft/petsc
+export PETSC_ARCH=arch-linux-c-debug
+
+
+./configure --download-fblaslapack=1
+
+export OMPI_ALLOW_RUN_AS_ROOT=1
+export OMPI_ALLOW_RUN_AS_ROOT_CONFIRM=1  
+
+make PETSC_DIR=/usr/soft/petsc PETSC_ARCH=arch-linux-c-debug all
+make PETSC_DIR=/usr/soft/petsc PETSC_ARCH=arch-linux-c-debug check 
+
+
+
+========================================SPECFEMX=======================================
+
+cd /usr/soft
+unzip SPECFEMX-freq.zip
+cd /usr/soft/SPECFEMX-freq
+mkdir specfemx-install
+cd specfemx-install
+ccmake /usr/soft/SPECFEMX-freq
+
+	• opens interactable window, follow SPECFEMX manual to on/off flags
+	• go to advance options (press t)
+	• change “CMAKE_Fortran_COMPILER” from “/usr/bin/f95” to “mpif90”
+	• add paths of SCOTCH include and lib directories
+	• configure (press c)
+	• generate (press g)
+	
+make -j
+
+=============== Final image from sandbox======(.sif / .simg / .img)====================
+
+sudo singularity build SPECFEMX_new.sif SPECFEMX_new/
+
+
+			* * * END * * *
+			
+			
