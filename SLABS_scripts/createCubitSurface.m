@@ -11,7 +11,17 @@ function createCubitSurface(lon, lat, grid_int)
     disp(' * * * Origin is taken at (138.5 40) for llh2xyz * * *');
 
     xyz = llh2local(llh, [138.5, 40]);
-    
+    xyz_rsGMT = [xyz', DATA(:,3)];
+
+    save xyz_rsGMT.mat xyz_rsGMT;
+
+    % Converted xyz are writting to uniform grid
+    uniform_xyz = irr2uniGrid('xyz_rsGMT');
+
+
+    disp(' * * * llh converted to xyz and saved as xyz_rsGMT.mat * * *');
+    disp(' * * * xyz are interpolated to uniform grid are save as uniform_xyz.mat * * *');
+
     x = xyz(1, 1:end);
     y = xyz(2, 1:end);
     h = llh(3, 1:end);
@@ -26,7 +36,7 @@ function createCubitSurface(lon, lat, grid_int)
     % Write cubit commands to a .jou file
     data_matrix = [x', y', h'];
 
-    fileID = fopen('slab_surf.jou', 'w');
+    fileID = fopen('SKIN-SURF_slab_surf.jou', 'w');
     fprintf(fileID, 'journal off\n echo on\n info on\n');
 
     % Create vertices
@@ -51,10 +61,33 @@ function createCubitSurface(lon, lat, grid_int)
     fprintf(fileID, '\n\ndelete vertex all \n\n');
     fprintf(fileID, '\n\ncreate surface skin curve 1 to %d \n\n', n_lat - 1);
     fprintf(fileID, '\n\ndelete curve all \n\n');
-    fprintf(fileID, '\n\nsave cub5 "JapanSlabSkin.cub5" overwrite journal\n\n');
+    fprintf(fileID, '\n\nsave cub5 "SKIN_JapanSlabSkin.cub5" overwrite journal\n\n');
 
     fclose(fileID);
+
+
+
+
+    disp('Cubit commands written to * * * SKIN-SURF_slab_surf.jou * * *at');
+    pwd    
+
+%%% ============================================================================================
+
+    % Uniform grid XYZ, for visulization
+    uniform_xyz = uniform_xyz';
+    x = uniform_xyz(1, 1:end);
+    y = uniform_xyz(2, 1:end);
+    h = uniform_xyz(3, 1:end);
+    data_matrix = [x', y', h'];
+
+    fileID = fopen('uniformXYZ.jou', 'w');
+    fprintf(fileID, 'journal off\n echo on\n info on\n');
+
+    % Create vertices
+    for i = 1:size(data_matrix, 1)
+        fprintf(fileID, 'create vertex location %.7e %.7e %.7e\n', data_matrix(i, 1), data_matrix(i, 2), data_matrix(i, 3));
+    end
+    fclose(fileID);
+
     
-    disp('Cubit commands written to * * * slab_surf.jou * * *at');
-    pwd
 end

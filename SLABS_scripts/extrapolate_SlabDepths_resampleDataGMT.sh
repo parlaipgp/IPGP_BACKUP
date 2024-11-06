@@ -1,17 +1,27 @@
 #!/bin/bash
 
 # Set the hard-coded bounds (adjust as needed)
-echo "Extrapolation between Longitude: 130-147, Latitude: 33-47"
 
-min_lon=130.0
-max_lon=147.0
-min_lat=33.0
-max_lat=47.0
+#min_lon=130.0
+#max_lon=147.0
+#min_lat=33.0
+#max_lat=47.0
+
+
+min_lon=127.0
+max_lon=150.0
+min_lat=30.0
+max_lat=50.0
+
+
 
 # Define the grid parameters
-lon=17
-lat=14
-grid_int=0.5
+#lon=17
+#lat=14
+
+lon=23
+lat=20
+grid_int=0.1
 
 # Step 1: Extract relevant data from depths.dat (assuming columns: lon, lat, ux, uy, uz, sxx)
 # Adjust column numbers if needed. Example here assumes you want lon, lat, and ux for extrapolation.
