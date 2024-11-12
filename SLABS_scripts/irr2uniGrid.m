@@ -13,8 +13,8 @@ function uniform_xyz = irr2uniGrid(filename)
     z = data.xyz_rsGMT(:,3);
 
     % Define a uniform grid in the range of x and y
-    x_uniform = -50:2:50; 
-    y_uniform = -50:2:50; 
+    x_uniform = -780:50:780; 
+    y_uniform = -780:50:780; 
 
     [X_grid, Y_grid] = meshgrid(x_uniform, y_uniform);
     disp('   ');
