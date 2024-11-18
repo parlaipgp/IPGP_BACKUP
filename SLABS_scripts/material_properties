@@ -1,0 +1,22 @@
+layer			-z(km)		Vp	Vs	Rho
+=========================================================================
+crust			0   -  20	5800	3200	2700
+Lithospheric mantle	20  -  80	6000	3300	3000	
+Asthenosphere (low Visc)	80  - 220	
+Rest of upper mantle	220 - 410	
+Transition zone		410 - 660
+
+
+
+
+
+Does continetal mantle and oceanic mantle have same VpVsRho ?
+
+
+Fault dip, size, Mw (8.2 - 8.4)===>  800km minimum  x  100km (not thicker than slab)
+Slab materials (density contrast btw slab and layers) 
+Thickness of Slab
+Give crustel layer to slab
+
+
+

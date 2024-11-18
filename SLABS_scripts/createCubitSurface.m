@@ -35,6 +35,9 @@ function createCubitSurface(lon, lat, grid_int)
     % Write cubit commands to a .jou file
     data_matrix = [x', y', h'];
 
+    disp(['top of slab actual at Z = ', num2str(max(data_matrix(:,3)))]);
+    disp(['bottom of slab actual at Z = ', num2str(min(data_matrix(:,3)))]);
+
     fileID = fopen('SKIN-SURF_slab_surf.jou', 'w');
     fprintf(fileID, 'journal off\n echo on\n info on\n');
 
@@ -79,6 +82,8 @@ function createCubitSurface(lon, lat, grid_int)
 
     load uniform_xyz.mat;
     data_matrix = uniform_xyz;
+    disp(['top of slab uniform at Z = ', num2str(max(data_matrix(:,3)))]);
+    disp(['bottom of slab uniform at Z = ', num2str(min(data_matrix(:,3)))]);
 
     vertex_number = sqrt(length(data_matrix));
 
@@ -121,15 +126,18 @@ function createCubitSurface(lon, lat, grid_int)
     
 
     xyz = uniform_xyz;
-    sigma = 5;
+    sigma = 3;
     xyz_smooth = smoothXYZ(xyz, sigma);
     load xyz_smooth.mat;
     data_matrix = xyz_smooth;
+    
+    disp(['top of slab after smooth at Z = ', num2str(max(data_matrix(:,3)))]);
+    disp(['bottom of slab after smooth at Z = ', num2str(min(data_matrix(:,3)))]);
 
     vertex_number = sqrt(length(data_matrix));
 
     fileID = fopen('SKIN-SURF_uniform_smooth.jou', 'w');
-    fprintf(fileID, 'journal off\n echo on\n info on\n');
+    fprintf(fileID, 'journal off\n echo off\n info off\n');
 
     % Create vertices
     for i = 1:size(data_matrix, 1)

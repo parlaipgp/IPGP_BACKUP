@@ -13,8 +13,8 @@ function uniform_xyz = irr2uniGrid(filename)
     z = data.xyz_rsGMT(:,3);
 
     % Define a uniform grid in the range of x and y
-    x_uniform = -780:50:780; 
-    y_uniform = -780:50:780; 
+    x_uniform = -1000:5:1000; 
+    y_uniform = -1000:5:1000; 
 
     [X_grid, Y_grid] = meshgrid(x_uniform, y_uniform);
     disp('   ');
@@ -31,6 +31,9 @@ function uniform_xyz = irr2uniGrid(filename)
 
     % Handle NaN values if any exist in the interpolated grid
     Z_grid = fillmissing(Z_grid, 'linear', 2); % Fill NaNs by interpolating along columns
+
+    % Ensure Z_grid values are not greater than 0
+    Z_grid(Z_grid > 0) = 0;
 
     % Convert the grids to column vectors
     x_col = X_grid(:);

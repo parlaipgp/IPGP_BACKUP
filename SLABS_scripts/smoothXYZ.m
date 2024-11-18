@@ -24,6 +24,9 @@ function xyz_smooth = smoothXYZ(xyz, sigma)
     % Apply Gaussian smoothing
     Z_smooth = imgaussfilt(Z, sigma);
 
+    % Enforce the constraint that values do not exceed 0
+    Z_smooth(Z_smooth > 0) = 0;
+    
     % Reshape the smoothed Z back to a column vector
     z_smooth = reshape(Z_smooth, [], 1);
 

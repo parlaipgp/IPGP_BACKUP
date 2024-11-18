@@ -2,8 +2,9 @@ clc; clear;close all;
 cd /media/rajesh/LaCie/SLABS/CUBIT/create_jou
 %cd E:/SLABS/CUBIT/create_jou/
 disp 'Tomo file for model without crust and trans_layer'
-load uniform_xyz.mat;  % Load your xyz data
-ss = [uniform_xyz(:,1), uniform_xyz(:,2), uniform_xyz(:,3)-100];   %% slab skin
+
+load xyz_smooth.mat;
+ss = xyz_smooth;   %% slab skin
 
 
 disp(['top of slab at Z = ', num2str(max(ss(:,3)))]);
@@ -19,9 +20,9 @@ dx = 10;
 dy = 10;
 dz = 10;
 % Define grid parameters
-x = -780:dx:780;
-y = -780:dy:780;
-z = -1000:dz:-24;
+x = -1000:dx:1000;
+y = -1000:dy:1000;
+z = -1000:dz:0;
 [X, Y, Z] = meshgrid(x, y, z);
 
 
@@ -73,7 +74,7 @@ end
 disp 'SLAB = DONE'
 
 toc
-save xyz_slab_2
+save xyz_slab
 %% Oceanic mantle 
 % Known coordinates
 b_slabskin = min(ss(:,3));  % lowest z value on skin surface
