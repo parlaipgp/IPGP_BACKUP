@@ -23,12 +23,24 @@ vpvsrho_trans_zone  = [9830, 5330, 3890];
 vpvsrho_low_mantle  = [11060, 6170, 4430];
 
 
-
+% Heterogeneous Slab
 vpvsrho_slab_1        = [7976.4, 4457.4, 3360];
 vpvsrho_slab_2        = [8180.4, 4559.4, 3450];
 vpvsrho_slab_3        = [8955.6, 4824.6, 3590];
 vpvsrho_slab_4        = [10026.6, 5436.6, 3970];
 vpvsrho_slab_5        = [11281.2, 6293.4, 4510];
+
+
+% Homogeneous Slab
+%vpvsrho_slab_1        = [8710, 4780, 3580];
+%vpvsrho_slab_2        = [8710, 4780, 3580];
+%vpvsrho_slab_3        = [8710, 4780, 3580];
+%vpvsrho_slab_4        = [8710, 4780, 3580];
+%vpvsrho_slab_5        = [8710, 4780, 3580];
+
+% No Slab ==>  remove slab_mat_x from tomo_matrix below 
+
+
 
 %%
 crust_mat = [crust, ones(length(crust),3).*vpvsrho_crust];

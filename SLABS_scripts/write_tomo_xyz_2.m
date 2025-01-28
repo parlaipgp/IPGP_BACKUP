@@ -1,6 +1,5 @@
 
-%cd /media/rajesh/LaCie/SLABS/CUBIT/create_jou/tomo_layers/
-%cd E:/SLABS/CUBIT/create_jou/tomo_layers/
+cd /media/rajesh/LaCie/SLABS/CUBIT/tomo/tomo_layers_3000X3000/
 
 clear; clc; close all
 tic
@@ -90,13 +89,18 @@ disp '* * * Use different interpolation (nearest/linear/natural) if NaN comes * 
 %save 5kmgrid_uni_interpolated.mat
 
 %%
-figure;    
-h = slice(Xq, Yq, Zq, Rho_uniform, mean(xq), mean(yq),mean(zq));
-title('Rho (kg/m3)');
+hFig = figure('Visible', 'off');
+h = slice(Xq, Yq, Zq, Rho_uniform, mean(xq), mean(yq), mean(zq));
+title('Rho (kg/m^3)');
 xlabel('X'); ylabel('Y'); zlabel('Z');
 colorbar;
 set(h, 'EdgeColor', 'none');
-%view(0, 0);
+
+% Save the figure as rho.fig
+savefig(hFig, 'Rho_5kmGridLinear.fig');
+
+% Close the figure
+close(hFig);
 
 
 %% write tomo.xyz
@@ -133,7 +137,7 @@ Rho_max = max(mat(:,6));
 
 disp 'check the name of .xyz file'
 
-filename = 'tomo_5km_grid_3000X3000X1000.xyz';
+filename = 'tomo_5km_grid_3000X3000X1000_HeteroSlab.xyz';
 
 fileID = fopen(filename, 'w');
 

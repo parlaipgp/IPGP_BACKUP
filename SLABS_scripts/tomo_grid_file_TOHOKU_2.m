@@ -8,8 +8,8 @@ ss = xyz_smooth;   %% slab skin
 dist_threshold = 5;
 ss_edge_dist = 5;
 
-x = -1500:20:1500;
-y = -1500:20:1500;
+x = -1500:10:1500;
+y = -1500:10:1500;
 
 [X, Y] = meshgrid(x, y);
 x = X(:);
