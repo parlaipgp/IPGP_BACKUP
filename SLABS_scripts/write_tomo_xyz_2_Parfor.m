@@ -1,25 +1,22 @@
 
-%cd /media/rajesh/LaCie/SLABS/CUBIT/create_jou/tomo_layers/
-%cd E:/SLABS/CUBIT/create_jou/tomo_layers/
 
-clear; clc; close all
-tic
+cd /media/rajesh/LaCie/SLABS/CUBIT/tomo/tomo_layers_3000X3000
+
+clear; clc; close all;
+tic;
+
+% Load data
 load tomo_matrix_10kmGrid.mat;
-
 data_matrix = tomo_matrix;
 
-
+% Filter data to keep only rows where Z <= 0
 rows_to_keep = data_matrix(:, 3) <= 0;
-
-% Filter the matrix to keep only rows Z<0 km
 data_matrix = data_matrix(rows_to_keep, :);
 
-%% uniform grid interpolation
-% Define the desired uniform grid spacing
-dx = 5;
-dy = 5;
-dz = 5;
+%% Define the desired uniform grid spacing
+dx = 20; dy = 20; dz = 20;
 
+% Extract coordinates and data
 x = data_matrix(:, 1);
 y = data_matrix(:, 2);
 z = data_matrix(:, 3);
@@ -31,46 +28,58 @@ rho = data_matrix(:, 6);
 x_min = min(x); x_max = max(x);
 y_min = min(y); y_max = max(y);
 z_min = min(z); z_max = max(z);
-
-
-
+%%
 % Create the uniform 3D grid
 xq = x_min:dx:x_max;
 yq = y_min:dy:y_max;
 zq = z_min:dz:z_max;
-%%
-% interpolation
 [Xq, Yq, Zq] = meshgrid(xq, yq, zq);
 
-disp '3D XYZ grid DONE'
+disp('3D XYZ grid DONE');
 
-% Set up scattered interpolants for Vp, Vs, and Rho
-F_vp = scatteredInterpolant(x, y, z, vp, 'linear', 'none'); disp '1'
-F_vs = scatteredInterpolant(x, y, z, vs, 'linear', 'none'); disp '2'
-F_rho = scatteredInterpolant(x, y, z, rho, 'linear', 'none'); disp '3'
+% Remove NaNs from input data
+valid = ~isnan(vp) & ~isnan(vs) & ~isnan(rho);
+x = x(valid); y = y(valid); z = z(valid);
+vp = vp(valid); vs = vs(valid); rho = rho(valid);
 
-disp 'scattered interpolants DONE'
+% Set up scattered interpolants
+F_vp = scatteredInterpolant(x, y, z, vp, 'nearest', 'none');
+F_vs = scatteredInterpolant(x, y, z, vs, 'nearest', 'none');
+F_rho = scatteredInterpolant(x, y, z, rho, 'nearest', 'none');
 
+disp('Scattered interpolants DONE');
 
-% % Interpolate onto the uniform grid
-Vp_uniform = F_vp(Xq, Yq, Zq); toc
-Vs_uniform = F_vs(Xq, Yq, Zq); toc
-Rho_uniform = F_rho(Xq, Yq, Zq); toc
+% Initialize output arrays
+Vp_uniform = zeros(size(Xq));
+Vs_uniform = zeros(size(Xq));
+Rho_uniform = zeros(size(Xq));
 
-disp ' interpolants GRID DONE'
+%% Start parallel pool if not already started
+if isempty(gcp('nocreate'))
+    parpool; % Start a parallel pool
+end
 
+% Perform interpolation using parfor
+disp('Starting interpolation with parfor...');
+parfor k = 1:numel(zq)
+    % Extract slices for the current z-level
+    Xq_slice = Xq(:, :, k);
+    Yq_slice = Yq(:, :, k);
+    Zq_slice = Zq(:, :, k);
+    
+    % Interpolate for the current z-level
+    Vp_uniform(:, :, k) = F_vp(Xq_slice, Yq_slice, Zq_slice);
+    Vs_uniform(:, :, k) = F_vs(Xq_slice, Yq_slice, Zq_slice);
+    Rho_uniform(:, :, k) = F_rho(Xq_slice, Yq_slice, Zq_slice);
+end
+disp('Interpolation with parfor DONE');
 
-% Display results (optional)
-disp('Uniform grid created.');
-disp(['Grid dimensions: ', num2str(length(xq)), ' x ', num2str(length(yq)), ' x ', num2str(length(zq))]);
-
-%
-disp('Filling NaN');
-
+% Fill NaNs (if any)
 Vp_uniform = fillmissing(Vp_uniform, 'nearest');
 Vs_uniform = fillmissing(Vs_uniform, 'nearest');
 Rho_uniform = fillmissing(Rho_uniform, 'nearest');
 
+% Flatten the grid for output
 x_flat = Xq(:);
 y_flat = Yq(:);
 z_flat = Zq(:);
@@ -81,15 +90,14 @@ rho_flat = Rho_uniform(:);
 % Combine into an Nx6 matrix
 uniform_grid = [x_flat, y_flat, z_flat, vp_flat, vs_flat, rho_flat];
 
-
 % Count the number of NaN values before removal
-num_NaN_before = sum(any(isnan(uniform_grid), 3))
-disp '* * * Use different interpolation (nearest/linear/natural) if NaN comes * * *'
+num_NaN_before = sum(any(isnan(uniform_grid), 2));
+disp(['Number of NaNs before removal: ', num2str(num_NaN_before)]);
+disp('* * * Use different interpolation (nearest/linear/natural) if NaN comes * * *');
 
-
-%save 5kmgrid_uni_interpolated.mat
-
+toc;
 %%
+
 figure;    
 h = slice(Xq, Yq, Zq, Rho_uniform, mean(xq), mean(yq),mean(zq));
 title('Rho (kg/m3)');
@@ -133,7 +141,7 @@ Rho_max = max(mat(:,6));
 
 disp 'check the name of .xyz file'
 
-filename = 'tomo_5km_grid_3000X3000X1000.xyz';
+filename = 'full_tomo_5km_grid_3000X3000.xyz';
 
 fileID = fopen(filename, 'w');
 
@@ -149,6 +157,6 @@ end
 fclose(fileID);
 
 
-disp 'tomo.xyz file written at'
+disp 'full_tomo_5km_grid_3000X3000.xyz file written at'
 pwd
 
