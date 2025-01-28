@@ -1,5 +1,9 @@
 #!/bin/csh
-
+echo "                                                 "
+echo "                                                 "
+echo "  * * * need to run * * * resampleDataGMT.sh * * * first"
+echo "                                                 "
+echo "                                                 "
 gmtset FORMAT_FLOAT_OUT %10.6f
 gmtset FORMAT_FLOAT_MAP %10.2f
 gmtset FONT_ANNOT_PRIMARY 14p
@@ -7,17 +11,17 @@ gmtset FONT_LABEL 20p
 
 # Output plots - TOHOKU
 set area = 'Tohoku'
-set xmin = 115
-set xmax = 160
-set ymin = 15
-set ymax = 60
+set xmin = 110
+set xmax = 170
+set ymin = 10
+set ymax = 70
 set stepx = 0.2
 set stepy = 0.2
 
-set xminplot = 115
-set xmaxplot = 160
-set yminplot = 15
-set ymaxplot = 60
+set xminplot = 110
+set xmaxplot = 170
+set yminplot = 10
+set ymaxplot = 70
 
 set pas = 0.05
 set pasplot = 0.025
@@ -26,19 +30,23 @@ set pasplot = 0.025
 foreach file (coseis.dat)
 
 # x vers le Nord, y vers l'Est, z Up (donc -z du calcul qui est vers le bas)
-echo "================================================="
-echo "                                                 "
-echo "                                                 "
-echo "No need to -1 * Uz for SPECFEMX Results"
 echo "                                                 "
 echo "                                                 "
 echo "================================================="
+echo "                                                 "
+echo "                                                 "
+echo "   No need to -1 * Uz for SPECFEMX Results       "
+echo "   Ux = Uy       "
+echo "   Gd = Gd * -1       "
 
+echo "================================================="
+echo "                                                 "
+echo "                                                 "
 
-awk 'NR > 1 {print $2, $1, $3}' $file > Ux.$file
-awk 'NR > 1 {print $2, $1, $4}' $file > Uy.$file
+awk 'NR > 1 {print $2, $1, $3}' $file > Uy.$file
+awk 'NR > 1 {print $2, $1, $4}' $file > Ux.$file
 awk 'NR > 1 {print $2, $1, $5}' $file > Uz.$file
-awk 'NR > 1 {print $2, $1, $15}' $file > Gd.$file
+awk 'NR > 1 {print $2, $1, $15*-1}' $file > Gd.$file
 awk 'NR > 1 {print $2, $1, $16}' $file > Gr.$file
 
 end

@@ -1,7 +1,7 @@
 
 clear;close all;
-cd /media/rajesh/LaCie/SPECFEM-X/Tohoku2011/RESULTS_PLOTS-pre-seis/GMT/
 
+disp 'we are at'
 pwd 
 
 ux = readmatrix('ux_rsGMT.dat', 'NumHeaderLines', 1);
@@ -22,4 +22,6 @@ nn = zeros(length(ux), 1);  % Random vector with the same length as ux
 data_matrix = [lat lon ux uy uz nn nn nn nn nn nn nn nn nn gd nn];
 
 writeDataMatrixToFile(data_matrix);
+
+
 

@@ -4,20 +4,16 @@
 echo "code to read all .csv files ==> xyz2llh ==> resample to 0.2° using GMT ==> write coseis.dat with 0.2° uniform grid"
 
 # Hard-coded bounds (adjust these values as needed)
-set min_lon = 115.0
-set max_lon = 155.0
-set min_lat = 15.0
-set max_lat = 60.0
+set min_lon = 110
+set max_lon = 170
+set min_lat = 10
+set max_lat = 70
 
 echo "reading SPECFEMX .csv files at"
-cd ../
 pwd
 
 echo "running matlab script xyz2llh_writting_DatFile.m"
 matlab -nodisplay -r "xyz2llh_writting_DatFile; exit"
-
-mv coseis.dat GMT/
-cd GMT
 
 echo "back to"
 pwd
