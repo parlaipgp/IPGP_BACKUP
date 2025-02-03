@@ -1,0 +1,136 @@
+##  ======S200 D60  100 X 1000 km ===== ##
+reset
+brick x 6000 y 6000 z 1040
+move vol 1 z -500
+
+create surface rectangle width 100 height 1000 xplane
+move surface 7 location x 0 y 0 z -270 include_merged
+
+
+# Dip = 60  ==> 60-90 = -30
+
+rotate surface 7 angle -30 about origin 0 0 -220 direction 0 1 0 include_merged
+rotate surface 7 angle -200 about origin 0 0 -220 direction 0 0 1 include_merged
+
+
+webcut volume 1  with general plane z offset 0 
+#webcut volume 3  with general plane z offset -550 
+#webcut volume 3  with plane normal to curve 14  fraction 0 from start 
+#webcut volume 3  with plane normal to curve 14  fraction 0 from end 
+
+
+webcut volume 3  with general plane y offset -700 
+webcut volume 3  with general plane y offset 700 
+
+webcut volume 5 with sheet extended from surface 7 
+split surface 38  with surface 7 
+split surface 43  with surface 7
+
+
+#webcut volume all with general plane z offset -660 
+
+
+delete surf all
+
+compress all
+imprint all
+merge all
+color vol all white
+
+##===============================================================
+
+draw volume 4, 5
+surface 21 25  size 30
+surface 21 25 scheme pave
+surface 21 25 scheme pave
+mesh surface 21 25
+
+volume all size 30
+volume 4 redistribute nodes off 
+volume 4 scheme Sweep  source surface 21    target surface 23   sweep transform least squares 
+volume 4 autosmooth target on  fixed imprints off  smart smooth off 
+volume 4 redistribute nodes off 
+volume 4 scheme Sweep  source surface 21    target surface 23   sweep transform least squares 
+volume 4 autosmooth target on  fixed imprints off  smart smooth off 
+mesh volume 4
+
+volume 5 redistribute nodes off 
+volume 5 scheme Sweep  source surface 25    target surface 27   sweep transform least squares 
+volume 5 autosmooth target on  fixed imprints off  smart smooth off 
+volume 5 redistribute nodes off 
+volume 5 scheme Sweep  source surface 25    target surface 27   sweep transform least squares 
+volume 5 autosmooth target on  fixed imprints off  smart smooth off 
+mesh volume 5
+
+
+
+volume 3  redistribute nodes off 
+volume 3  scheme Sweep  source surface 25 21    target surface 7   sweep transform least squares 
+volume 3  autosmooth target on  fixed imprints off  smart smooth off 
+volume 3  redistribute nodes off 
+volume 3  scheme Sweep  source surface 25 21    target surface 7   sweep transform least squares 
+volume 3  autosmooth target on  fixed imprints off  smart smooth off 
+mesh volume 3 
+
+volume 2  redistribute nodes off 
+volume 2  scheme Sweep  source surface 23 27    target surface 8   sweep transform least squares 
+volume 2  autosmooth target on  fixed imprints off  smart smooth off 
+volume 2  redistribute nodes off 
+volume 2  scheme Sweep  source surface 23 27    target surface 8   sweep transform least squares 
+volume 2  autosmooth target on  fixed imprints off  smart smooth off 
+mesh volume 2 
+
+
+volume 1  redistribute nodes off 
+volume 1  scheme Sweep  source surface 11 28 22 15    target surface 1   sweep transform least squares 
+volume 1  autosmooth target on  fixed imprints off  smart smooth off 
+volume 1  redistribute nodes off 
+volume 1  scheme Sweep  source surface 11 28 22 15    target surface 1   sweep transform least squares 
+volume 1  autosmooth target on  fixed imprints off  smart smooth off 
+mesh volume 1 
+
+##=======================================================================================================
+
+compress all
+imprint all
+merge all
+
+
+
+set duplicate block elements off
+block 1 add volume 2 3 4 5
+
+
+set duplicate block elements off
+block 2 add volume 1
+
+
+sideset 1 add Surface 1 2 3 4 5 6 7 8 10 11 13 14 15 16 17 21 23
+sideset 1 name "add_infinite_surface"
+
+
+sideset 2 add surface 26 wrt volume 4
+sideset 2 name "fault_plus"
+
+sideset 3 add surface 26 wrt volume 5
+sideset 3 name "fault_minus"
+
+
+sideset 4 add Surface 9 12 19 25
+sideset 4 name "free_surface"
+
+
+
+compress all
+merge all
+imprint all
+
+set exodus netcdf4 off
+set large exodus file on
+# meters to km
+transform Mesh Output scale 1000     
+
+export mesh "tohoku_slab.e" dimension 3 overwrite
+#undo group end
+
+
