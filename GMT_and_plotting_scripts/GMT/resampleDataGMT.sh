@@ -11,6 +11,19 @@ set max_lat = 70
 
 echo "reading SPECFEMX .csv files at"
 pwd
+echo ""
+echo ""
+echo "  *  *   *  *   *   Extrapolating 3000X3000 ---->  6000X6000 grid in Matlab  *  *  *  *  *"
+echo ""
+echo ""
+echo "  *  *   *  *   *  Check Tappering for Gd/Gp  *  *  *  *  *"
+echo ""
+echo ""
+echo "  *  *   *  *   *  Check extrapolation is Linear/Nearest  *  *  *  *  *"
+echo ""
+echo ""
+matlab -nodisplay -r "extrapolateTo6000X6000_ZeroBoundary_CosineTap; exit"
+
 
 echo "running matlab script xyz2llh_writting_DatFile.m"
 matlab -nodisplay -r "xyz2llh_writting_DatFile; exit"
