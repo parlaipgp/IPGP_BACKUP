@@ -1,9 +1,11 @@
+
 clear all; clc;
 
 % Input (in degrees)
-strike = 90;
-dip    = 90;
-rake   = 180;
+strike = 200;
+dip    = 60;
+rake   = -90;
+
 
 
 % function to compute the fault normal vector given the strike and dip (in degrees)
@@ -16,26 +18,27 @@ rake   = 180;
 % dips to your right.
 %
 %" C HARLES J. AMMON DEPARTMENT OF GEOSCIENCES PENN STATE UNIVERSITY "
+ 
+nn = -sind(dip)*sind(strike);  % North (Y)
+ne = sind(dip)*cosd(strike);   % East  (X)
+nv = cosd(dip);                % Up    (Z)
 
 
-nn = -sind(dip)*sind(strike);  % North
-ne = sind(dip)*cosd(strike);   % East
-nv = -cosd(dip);               % Verical
 
 % Calculate slip components
-sx = cosd(rake) * cosd(strike) + sind(rake) * sind(strike) * cosd(dip);  %slip X (East)
-sy = cosd(rake) * sind(strike) - sind(rake) * cosd(strike) * cosd(dip);  %slip Y (North)
-sz = -sind(rake) * sind(dip);                                            %slip Z (Up)
 
-n = [ne; nn; nv];  % normal vector (NEV)
-s = [sy;sx;sz];  % slip vector (NEU)
+sx = cosd(rake) * sind(strike) + sind(rake) * cosd(dip) * cosd(strike);
+sy = cosd(rake) * cosd(strike) - sind(rake) * cosd(dip) * sind(strike);
+sz = sind(rake) * sind(dip);
+
+
+n = [ne; nn; nv];  % normal vector [nx ny nz]
+
+s = [sx; sy; sz];  % slip vector   [sx sy sz]
 
 % Compute moment tensor in NED coordinates
 mt = (n * s' + s * n');
 
-% mt = [-0.5  -0.5  0;
-%       -0.5   0.5  0;
-%        0     0   -0.5];  % S90 D45 R90 (Pure thrust) U-S-E
 
 Mt = 1.135e+11*mt;
 
