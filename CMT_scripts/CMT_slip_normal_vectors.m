@@ -1,28 +1,18 @@
 
+
+                         % - - - Working Good for SPECFEMX. [nx ny nz] [sx sy sz] - - - %
 clear all; clc;
 
 % Input (in degrees)
-strike = 200;
-dip    = 60;
-rake   = -90;
+strike = -45;
+dip    = 90;
+rake   = 0;
 
-
-
-% function to compute the fault normal vector given the strike and dip (in degrees)
-%
-% the strike should lie between 0 and 360 (negative ok)
-% the dip is restricted to lie between 0 and 90
-%
-% the dip should be measured in the direction such that
-% when you look in the strike direction, the fault
-% dips to your right.
-%
 %" C HARLES J. AMMON DEPARTMENT OF GEOSCIENCES PENN STATE UNIVERSITY "
  
-nn = -sind(dip)*sind(strike);  % North (Y)
 ne = sind(dip)*cosd(strike);   % East  (X)
+nn = -sind(dip)*sind(strike);  % North (Y)
 nv = cosd(dip);                % Up    (Z)
-
 
 
 % Calculate slip components
